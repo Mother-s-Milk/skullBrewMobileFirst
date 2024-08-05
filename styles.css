@@ -362,7 +362,7 @@ a {
 }
 
 .nosotros img {
-    width: 275px;
+    width: var(--s-width);
     margin-bottom: 12px;
     border-radius: 15px;
 }

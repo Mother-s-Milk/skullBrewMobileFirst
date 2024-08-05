@@ -1,0 +1,505 @@
+* {
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    font-family: 'Quicksand', Arial;
+}
+
+a {
+    text-decoration: none;
+}
+
+/*Header*/
+#header {
+    width: 100%;
+    height: 100vh;
+
+    background-image: url('imgGenerales/headerMobile.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    position: relative;
+}
+
+#header::before {
+    content: "";
+
+    width: 100%;
+    height: 100%;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    background-color: rgba(0, 0, 0, 0.3);
+
+    z-index: 1;
+}
+
+/*Container*/
+.container {
+    padding: 15px 15px 30px;
+    max-width: 1440px;
+    text-align: center;
+}
+
+/*Nav*/
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.app-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    cursor: pointer;
+
+    z-index: 2;
+}
+
+.app-menu i {
+    color: white;
+    font-size: 21px;
+    padding: 1.5px;
+}
+
+.logo-header {
+    z-index: 2;
+}
+
+.logo-header img {
+    width: 90px;
+    height: 90px;
+}
+
+.social-media-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.social-media-header a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    width: 24px;
+    height: 24px;
+
+    z-index: 2;
+}
+
+.social-media-header a:nth-child(-n+2) {
+    margin-bottom: 6px;
+}
+
+.social-media-header a:hover {
+    background-color: darkred;
+}
+
+.social-media-header a i {
+    color: white;
+    font-size: 18px;
+    
+}
+
+/*min 305*/
+/*********************/
+/*********************/
+/*Cervezas destacadas*/
+/*********************/
+/*********************/
+.header-section {
+    margin-bottom: 15px;
+}
+
+.header-section > h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: black;
+}
+
+/*Cervezas*/
+.destacadas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.cerveza-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+
+    border-radius: 15px;
+    border: 0px solid black;
+
+    box-shadow: 0px 0px 6px 0.3px rgba(0, 0, 0, 0.3);
+
+    padding: 15px;
+
+    position: relative;
+
+    min-width: 275px;
+}
+
+.etiqueta-destacada {
+    border-radius: 6px;
+    background-color: black;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    padding: 3px 9px;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+}
+
+.img-destacada {
+    width: 245px;
+}
+
+.nombre-destacada {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.nombre-destacada h2 {
+    font-size: 21px;
+    font-weight: 600;
+    color: black;
+}
+
+.info-destacada {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.acciones-destacadas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.acciones-destacadas > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: black;
+    color: white;
+
+    margin: 0px 9px;
+
+    border-radius: 9px;
+
+    width: 30px;
+    height: 30px;
+}
+
+.acciones-destacadas > span > i {
+    padding: 6px;
+    font-size: 18px;
+}
+
+.btn {
+    padding: 6px 12px;
+    font-size: 18px;
+    color: white;
+    background-color: black;
+    font-family: 'Quicksand', Arial;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+
+    transition: 0.5s all;
+
+    text-transform: uppercase;
+}
+
+.btn:hover {
+    background-color: darkred;
+}
+
+/*****************/
+/*****************/
+/*Divisor sección*/
+/*****************/
+/*****************/
+
+.divisor-seccion {
+    width: 90%;
+    border: none;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 1px 0.5px rgba(0, 0, 0, 0.3);
+    margin: auto;
+}
+
+/***********************/
+/***********************/
+/*Sección más productos*/
+/***********************/
+/***********************/
+.mas-productos.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.producto-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 275px;
+    height: 275px;
+    overflow: hidden;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    margin: 0px auto 15px auto;
+}
+
+.producto-container::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.producto-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nombre-producto {
+    position: absolute;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.6);
+    font-size: 21px;
+    font-weight: 600;
+    z-index: 2;
+}
+
+/****************/
+/****************/
+/*Envíos sección*/
+/****************/
+/****************/
+.pasos-envio-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pasos-envio-container > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.paso-container {
+    width: 50%;
+}
+
+.paso-container img {
+    width: 60px;
+    margin-bottom: 6px;
+}
+
+.paso {
+    font-size: 15px;
+    color: black;
+    font-weight: 500;
+}
+
+/**/
+/*Sección nosotros*/
+/**/
+.nosotros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nosotros img {
+    width: 275px;
+    margin-bottom: 12px;
+    border-radius: 15px;
+}
+
+.info-nosotros {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.info-nosotros h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.info-nosotros p {
+    font-size: 15px;
+    text-align: justify;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+/******************/
+/******************/
+/*Contacto sección*/
+/******************/
+/******************/
+.contacto {
+    margin-bottom: 15px;
+}
+
+.contacto p {
+    font-size: 15px;
+    text-align: justify;
+    font-weight: 400;
+    line-height: 18px;
+    color: black;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.form > div > label {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 3px;
+    text-align: start;
+    width: 100%;
+}
+
+.form > div > input {
+    width: 100%;
+    border-radius: 9px;
+    padding: 3px;
+    border: 1px solid black;
+    margin-bottom: 9px;
+    height: 30px;
+}
+
+.form > div > textarea {
+    width: 100%;
+    border-radius: 9px;
+    padding: 3px;
+    border: 1px solid black;
+    margin-bottom: 15px;
+    height: 75px;
+    resize: none;
+}
+
+/**/
+/*Footer*/
+/**/
+#footer {
+    background-color: black;
+}
+
+.info-footer {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 21px;
+}
+
+.info-footer img {
+    width: 120px;
+    margin-bottom: 9px;
+}
+
+.info-footer > div > h1 {
+    font-size: 21px;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.info-footer > div > p {
+    font-size: 15px;
+    font-weight: 400;
+    color: white;
+}
+
+.info-footer > div > p:first-child {
+    margin-bottom: 6px;
+}
+
+.social-media-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 21px;
+}
+
+.social-media-footer > a {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: darkred;
+}
+
+.social-media-footer > a:nth-child(2) {
+    margin: 0px 15px;
+}
+
+.social-media-footer > a > i {
+    color: black;
+    font-size: 21px;
+}
+
+#footer > p {
+    font-size: 15px;
+    color: white;
+    font-weight: 500;
+}

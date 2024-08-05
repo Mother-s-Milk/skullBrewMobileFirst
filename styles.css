@@ -1,3 +1,5 @@
+/*Modificar y adaptar medidas estilo rem o em*/
+
 * {
     box-sizing: border-box;
     padding: 0px;
@@ -9,6 +11,7 @@ body {
     /*overflow: hidden;*/
 }
 
+/*Variables para calcular anchos de containers*/
 :root {
     --s-width: 0;
     --s-padding: 30;
@@ -18,9 +21,12 @@ a {
     text-decoration: none;
 }
 
+ul {
+    list-style-type: none;
+}
+
 /*Header*/
 #header {
-    /*width: 100%;*/
     height: 100vh;
 
     background-image: url('imgGenerales/headerMobile.jpg');
@@ -49,7 +55,9 @@ a {
 /*Container*/
 .container {
     padding: 15px 15px 30px;
+
     max-width: 1440px;
+
     text-align: center;
 }
 
@@ -58,41 +66,66 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     width: 100%;
 }
 
-.app-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 24px;
-    height: 24px;
+.menu-button {
+    width: 30px;
+    height: 30px;
 
     cursor: pointer;
 
     z-index: 2;
+    background-color: transparent;
+    border: none;
 }
 
-.app-menu i {
+.menu-button i {
     color: white;
-    font-size: 21px;
-    padding: 1.5px;
+    font-size: 24px;
 }
 
 .logo-header {
     z-index: 2;
 }
 
+.logo-header a {
+    display: block;
+}
+
 .logo-header img {
     width: 90px;
     height: 90px;
+
+    display: block;
 }
 
 .social-media-header {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    z-index: 2;
+}
+
+.social-media-header > li {
+    display: inline;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 50%;
+
+    transition: 0.5s all;
+}
+
+.social-media-header > li:nth-child(2) {
+    margin: 6px 0px;
+}
+
+.social-media-header > li:hover {
+    background-color: darkred;
 }
 
 .social-media-header a {
@@ -100,26 +133,13 @@ a {
     align-items: center;
     justify-content: center;
 
-    border-radius: 50%;
-
-    width: 24px;
-    height: 24px;
-
-    z-index: 2;
-}
-
-.social-media-header a:nth-child(-n+2) {
-    margin-bottom: 6px;
-}
-
-.social-media-header a:hover {
-    background-color: darkred;
+    width: 100%;
+    height: 100%;
 }
 
 .social-media-header a i {
     color: white;
-    font-size: 18px;
-    
+    font-size: 21px;
 }
 
 /*min 305*/
@@ -129,11 +149,11 @@ a {
 /*********************/
 /*********************/
 .header-section {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .header-section > h1 {
-    font-size: 24px;
+    font-size: 27px;
     font-weight: 700;
     color: black;
 }
@@ -143,27 +163,26 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 15px;
+
+    margin-bottom: 18px;
 }
 
 .cerveza-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 15px;
+
+    margin-bottom: 18px;
+    padding: 18px;
 
     border-radius: 15px;
-    border: 0px solid black;
-
-    box-shadow: 0px 0px 6px 0.3px rgba(0, 0, 0, 0.3);
-
-    padding: 15px;
+    border: none;
+    box-shadow: 0px 0px 3px 0.3px rgba(0, 0, 0, 0.3);
 
     position: relative;
 
-    width: var(--s-width);
-
     /*min-width: 275px;*/
+    width: var(--s-width);
 }
 
 .etiqueta-destacada {
@@ -175,8 +194,8 @@ a {
     text-align: center;
     padding: 3px 9px;
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 18px;
+    left: 18px;
 }
 
 .img-destacada {
@@ -185,7 +204,6 @@ a {
 
 .nombre-destacada {
     margin-bottom: 15px;
-    text-align: center;
 }
 
 .nombre-destacada h2 {
@@ -196,9 +214,11 @@ a {
 
 .info-destacada {
     width: 100%;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     font-size: 15px;
     margin-bottom: 15px;
 }
@@ -215,7 +235,6 @@ a {
     justify-content: center;
 
     background-color: black;
-    color: white;
 
     margin: 0px 9px;
 
@@ -226,12 +245,13 @@ a {
 }
 
 .acciones-destacadas > span > i {
+    color: white;
     padding: 6px;
     font-size: 18px;
 }
 
 .btn {
-    padding: 6px 12px;
+    padding: 9px 12px;
     font-size: 18px;
     color: white;
     background-color: black;
@@ -240,9 +260,7 @@ a {
     border: none;
     border-radius: 12px;
     cursor: pointer;
-
     transition: 0.5s all;
-
     text-transform: uppercase;
 }
 

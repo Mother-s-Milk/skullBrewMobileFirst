@@ -14,7 +14,7 @@ body {
 /*Variables para calcular anchos de containers*/
 :root {
     --s-width: 0;
-    --s-padding: 30;
+    --s-padding: 15;
 }
 
 a {
@@ -273,14 +273,14 @@ ul {
 /*Divisor sección*/
 /*****************/
 /*****************/
-
 .divisor-seccion {
-    width: 90%;
+    max-width: 1440px;
     border: none;
-    height: 1px;
+    height: 0.5px;
     background-color: rgba(0, 0, 0, 0.3);
-    box-shadow: 0px 0px 1px 0.5px rgba(0, 0, 0, 0.3);
-    margin: auto;
+    box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.1);
+    margin: auto 15px;
+    border-radius: 15px;
 }
 
 /***********************/
@@ -292,20 +292,20 @@ ul {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
 }
 
 .producto-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 275px;
-    height: 275px;
+
+    width: var(--s-width);
+    height: var(--s-width);
+
     overflow: hidden;
     border-radius: 15px;
     margin-bottom: 15px;
     position: relative;
-    margin: 0px auto 15px auto;
 }
 
 .producto-container::before {
@@ -315,7 +315,7 @@ ul {
     position: absolute;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
     z-index: 1;
 }
 
@@ -329,10 +329,10 @@ ul {
     position: absolute;
     color: white;
     padding: 6px 12px;
-    border-radius: 12px;
-    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 9px;
+    background-color: rgba(0, 0, 0, 0.5);
     font-size: 21px;
-    font-weight: 600;
+    font-weight: 500;
     z-index: 2;
 }
 
@@ -351,6 +351,7 @@ ul {
     display: flex;
     align-items: center;
     justify-content: center;
+
     width: 100%;
     margin-bottom: 30px;
 }
@@ -360,7 +361,7 @@ ul {
 }
 
 .paso-container img {
-    width: 60px;
+    width: 75px;
     margin-bottom: 6px;
 }
 
@@ -370,31 +371,26 @@ ul {
     font-weight: 500;
 }
 
-/**/
+/******************/
+/******************/
 /*Sección nosotros*/
-/**/
+/******************/
+/******************/
 .nosotros {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.nosotros img {
+.nosotros-img img {
     width: var(--s-width);
     margin-bottom: 12px;
-    border-radius: 15px;
-}
-
-.info-nosotros {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
+    border-radius: 12px;
 }
 
 .info-nosotros h2 {
     font-size: 24px;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 12px;
 }
 
@@ -432,11 +428,12 @@ ul {
     display: flex;
     flex-direction: column;
     align-items: center;
+
     width: 100%;
 }
 
 .form > div > label {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 500;
     margin-bottom: 3px;
     text-align: start;
@@ -445,26 +442,28 @@ ul {
 
 .form > div > input {
     width: 100%;
-    border-radius: 9px;
-    padding: 3px;
-    border: 1px solid black;
-    margin-bottom: 9px;
+    border-radius: 6px;
+    padding: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin-bottom: 12px;
     height: 30px;
+    font-family: 'Quicksand', Arial;
 }
 
 .form > div > textarea {
     width: 100%;
-    border-radius: 9px;
-    padding: 3px;
-    border: 1px solid black;
-    margin-bottom: 15px;
-    height: 75px;
+    border-radius: 6px;
+    padding: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin-bottom: 12px;
+    height: 90px;
     resize: none;
+    font-family: 'Quicksand', Arial;
 }
 
-/**/
+/********/
 /*Footer*/
-/**/
+/********/
 #footer {
     background-color: black;
 }
@@ -473,18 +472,19 @@ ul {
     display: flex;
     align-items: center;
     flex-direction: column;
-    margin-bottom: 21px;
+
+    margin-bottom: 30px;
 }
 
 .info-footer img {
     width: 120px;
-    margin-bottom: 9px;
+    margin-bottom: 3px;
 }
 
 .info-footer > div > h1 {
     font-size: 21px;
     color: white;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 6px;
 }
 
@@ -494,7 +494,7 @@ ul {
     color: white;
 }
 
-.info-footer > div > p:first-child {
+.info-footer > div > p:first-of-type {
     margin-bottom: 6px;
 }
 
@@ -502,7 +502,8 @@ ul {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 21px;
+
+    margin-bottom: 30px;
 }
 
 .social-media-footer > a {
@@ -525,7 +526,7 @@ ul {
 }
 
 #footer > p {
-    font-size: 15px;
+    font-size: 12px;
     color: white;
-    font-weight: 500;
+    font-weight: 400;
 }

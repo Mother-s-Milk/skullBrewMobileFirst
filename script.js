@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sPadding = parseFloat(sPadding);
 
         // Calcular el nuevo width
-        let width = (size - sPadding);
+        let width = (size) - (sPadding + sPadding);
 
         // Establecer la nueva variable CSS --s-width
         document.documentElement.style.setProperty('--s-width', `${width}px`);

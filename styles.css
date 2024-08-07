@@ -1,5 +1,9 @@
 /*Modificar y adaptar medidas estilo rem o em*/
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     box-sizing: border-box;
     padding: 0;
@@ -9,6 +13,13 @@
 body {
     font-family: 'Quicksand', Arial;
     /*overflow: hidden;*/
+}
+
+/*Para ocultar el scroll del body si el menú está desplegado*/
+.no-scroll {
+    overflow: hidden;
+    /* Opcional: Si el contenido se desplaza horizontalmente, también puedes ocultar el scroll horizontal */
+    overflow-x: hidden;
 }
 
 /*Variables para calcular anchos de containers*/
@@ -55,9 +66,7 @@ ul {
 /*Container*/
 .container {
     padding: 0.9375em 0.9375em 1.875em;
-
     max-width: 1440px;
-
     text-align: center;
 }
 
@@ -68,6 +77,10 @@ ul {
     align-items: center;
 
     width: 100%;
+
+    position: relative;
+
+    z-index: 2;
 }
 
 .menu-button {
@@ -76,7 +89,6 @@ ul {
 
     cursor: pointer;
 
-    z-index: 2;
     background-color: transparent;
     border: none;
 }
@@ -86,15 +98,11 @@ ul {
     font-size: 1.5em;
 }
 
-.logo-header {
-    z-index: 2;
-}
-
-.logo-header a {
+.logo-header > a {
     display: block;
 }
 
-.logo-header img {
+.logo-header >a > img {
     width: 5.625em;
     height: 5.625em;
 
@@ -105,13 +113,9 @@ ul {
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    z-index: 2;
 }
 
 .social-media-header > li {
-    display: inline;
-
     width: 1.6875em;
     height: 1.6875em;
 
@@ -128,7 +132,7 @@ ul {
     background-color: darkred;
 }
 
-.social-media-header a {
+.social-media-header >li > a {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -545,4 +549,90 @@ ul {
     font-size: 0.75em;
     color: white;
     font-weight: 400;
+}
+
+
+
+.disply-none {
+    display: none;
+}
+
+/* Estilos generales para el menú desplegable */
+#menu-desplegable {
+    position: fixed; /* Fija el menú en la pantalla */
+    top: 0; /* Alinea el menú al borde superior */
+    left: 0; /* Alinea el menú al borde izquierdo */
+
+    width: 100%; /* Hace que el menú cubra todo el ancho */
+    height: 100%; /* Hace que el menú cubra todo el alto */
+
+    background-color: black; /* Fondo negro */
+    color: white; /* Texto blanco */
+
+    transform: translateY(-100%); /* Inicialmente escondido fuera de la vista */
+    transition: transform 0.5s ease; /* Transición suave */
+
+    display: flex; /* Usamos flexbox para centrar el contenido */
+    flex-direction: column; /* Alinea el contenido en columna */
+    justify-content: space-between; /* Centra verticalmente */
+    align-items: center; /* Centra horizontalmente */
+
+    z-index: 1000; /* Asegura que el menú esté encima de otros elementos */
+}
+
+#menu-desplegable.show {
+    transform: translateY(0); /* Muestra el menú moviéndolo hacia abajo */
+}
+
+/*#menu-desplegable.menu-button {*/
+    /*background: none; /* Sin fondo */
+    /*border: none; /* Sin borde */
+    /*color: white; /* Texto blanco */
+    /*font-size: 2rem; /* Tamaño del icono */
+    /*cursor: pointer; /* Cursor de puntero */
+/*}*/
+
+.links-nav {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    margin: auto;
+    /*border: 1px solid red;*/
+}
+
+.links-nav > li {
+    width: 100%;
+}
+
+.links-nav > li {
+    margin-bottom: 1.875em;
+}
+
+.links-nav >li > a {
+    color: white; /* Enlaces en blanco */
+    
+    font-size: 2.4375em;
+    font-weight: 600;
+
+    padding: 0.1875em;
+
+    display: block;
+}
+
+.btn-close-menu-container {
+    height: 5.625em;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+/*#btn-close-menu {
+    font-size: 18px;
+}*/
+
+.menu-desplegable-footer > p{
+    font-size: 0.75em;
 }

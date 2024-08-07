@@ -17,17 +17,38 @@
 </head>
 <body>
     <header id="header" class="container">
-        <nav class="nav-header">
+        <nav class="nav-header" role="navigation">
             <button id="btn-menu" class="menu-button" type="button" aria-label="Abrir menú">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div class="logo-header">
-                <a href="#" aria-label="Inicio"><img src="imgGenerales/logoNombre.png" alt="Logo de Skull Brew"></a>
+                <a href="#header" aria-label="Inicio"><img src="imgGenerales/logoNombre.png" alt="Logo de Skull Brew"></a>
+            </div>
+            <div id="menu-desplegable" class="display-none container">
+                <div class="btn-close-menu-container">
+                    <button id="btn-close-menu" class="menu-button" type="button" aria-label="Cerrar menú">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <ul class="links-nav">
+                    <li><a href="#header">Inicio</a></li>
+                    <li><a href="#section-cervezas-destacadas">Cervezas</a></li>
+                    <li><a href="#section-nosotros">Nosotros</a></li>
+                    <li><a href="#section-contacto">Contacto</a></li>
+                </ul>
+                <footer class="menu-desplegable-footer">
+                    <ul class="social-media-footer">
+                        <li><a href="https://www.facebook.com/"><i class="fa-brands fa-facebook-f"></i></a></li>
+                        <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram"></i></a></li>
+                        <li><a href="https://www.whatsapp.com/"><i class="fa-brands fa-whatsapp"></i></a></li>
+                    </ul>
+                    <p>Cervecería Skull Brew © Todos los derechos reservados</p>
+                </footer>
             </div>
             <ul class="social-media-header">
-                <li><a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a></li>
-                <li><a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
-                <li><a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a></li>
+                <li><a href="https://www.facebook.com/" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a></li>
+                <li><a href="https://www.instagram.com/" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
+                <li><a href="https://www.whatsapp.com/" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a></li>
             </ul>
         </nav>
     </header>
@@ -221,9 +242,9 @@
             </div>
         </div>
         <ul class="social-media-footer">
-            <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
-            <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
-            <li><a href="#"><i class="fa-brands fa-whatsapp"></i></a></li>
+            <li><a href="https://www.facebook.com/"><i class="fa-brands fa-facebook-f"></i></a></li>
+            <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram"></i></a></li>
+            <li><a href="https://www.whatsapp.com/"><i class="fa-brands fa-whatsapp"></i></a></li>
         </ul>
         <p>Cervecería Skull Brew © Todos los derechos reservados</p>
     </footer>

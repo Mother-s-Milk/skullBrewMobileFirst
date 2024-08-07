@@ -20,4 +20,34 @@ document.addEventListener('DOMContentLoaded', () => {
     setComponentWidth();
 
     window.addEventListener('resize', setComponentWidth);
+
+
+    /*
+    * Menú desplegable
+    */
+    // Abrir menú
+let btnMenu = document.getElementById("btn-menu");
+btnMenu.onclick = () => {
+    let menuDesplegable = document.getElementById("menu-desplegable");
+    menuDesplegable.classList.add("show");
+    //document.body.classList.add("no-scroll");
+};
+
+// Cerrar menú
+let btnCloseMenu = document.getElementById("btn-close-menu");
+btnCloseMenu.onclick = () => {
+    let menuDesplegable = document.getElementById("menu-desplegable");
+    menuDesplegable.classList.remove("show");
+    //document.body.classList.remove("no-scroll");
+};
+
+// Cerrar menú al hacer clic en un enlace
+let menuLinks = document.querySelectorAll("#menu-desplegable .links-nav a");
+menuLinks.forEach(link => {
+    link.onclick = () => {
+        let menuDesplegable = document.getElementById("menu-desplegable");
+        menuDesplegable.classList.remove("show");
+        //document.body.classList.remove("no-scroll");
+    };
+});
 })

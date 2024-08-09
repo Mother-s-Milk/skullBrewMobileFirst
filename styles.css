@@ -81,6 +81,8 @@ ul {
     position: relative;
 
     z-index: 2;
+
+    margin-bottom: 1.875em;
 }
 
 .menu-button {
@@ -635,4 +637,44 @@ ul {
 
 .menu-desplegable-footer > p{
     font-size: 0.75em;
+}
+
+#slider {
+    width: 100%;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: auto;
+
+    z-index: 1;
+    position: relative;
+}
+
+.btn-slider {
+    color: white;
+    background-color: transparent;
+    border: none;
+    border-radius: 100%;
+    cursor: pointer;
+    transition: 0.3s all;
+}
+
+.btn-slider:active {
+    transform: scale(1.5);
+}
+
+.btn-slider > i {
+    font-size: 1.3125em;
+    padding: 0.1875em;
+}
+
+#img-container {
+    width: 100%;
+}
+
+#img-container > img {
+    width: 100%;
+    transition: opacity 0.6s ease-in-out;
 }

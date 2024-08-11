@@ -1,5 +1,3 @@
-/*Modificar y adaptar medidas estilo rem o em*/
-
 html {
     scroll-behavior: smooth;
 }
@@ -12,7 +10,6 @@ html {
 
 body {
     font-family: 'Quicksand', Arial;
-    /*overflow: hidden;*/
 }
 
 /*Para ocultar el scroll del body si el menú está desplegado*/
@@ -25,6 +22,7 @@ body {
 /*Variables para calcular anchos de containers*/
 :root {
     --s-width: 0;
+    /*Small padding*/
     --s-padding: 15;
 }
 
@@ -35,8 +33,9 @@ a {
 ul {
     list-style-type: none;
 }
-
+/********/
 /*Header*/
+/********/
 #header {
     height: 100vh;
 
@@ -63,31 +62,39 @@ ul {
     z-index: 1;
 }
 
+/***********/
 /*Container*/
+/***********/
 .container {
-    padding: 0.9375em 0.9375em 1.875em;
+    padding: 0.9375rem;
+
     max-width: 1440px;
+
     text-align: center;
 }
 
+/*****/
 /*Nav*/
+/*****/
 .nav-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 
-    width: 100%;
-
     position: relative;
 
     z-index: 2;
 
-    margin-bottom: 1.875em;
+    margin-bottom: 1.875rem;
 }
 
+
+/***************/
+/*Botón de menú*/
+/***************/
 .menu-button {
-    width: 1.875em;
-    height: 1.875em;
+    width: 1.875rem;
+    height: 1.875rem;
 
     cursor: pointer;
 
@@ -97,44 +104,106 @@ ul {
 
 .menu-button i {
     color: white;
-    font-size: 1.5em;
+    font-size: 1.5rem;
+    /*padding: 0.375rem;*/
 }
 
-.logo-header > a {
-    display: block;
+.disply-none {
+    display: none;
 }
 
-.logo-header >a > img {
-    width: 5.625em;
-    height: 5.625em;
+/******************/
+/*Menú desplegable*/
+/******************/
+#menu-desplegable {
+    position: fixed;
+    top: 0;
+    left: 0;
 
-    display: block;
-}
+    width: 100%;
+    height: 100%;
 
-.social-media-header {
-    display: flex;
+    background-color: black;
+
+    transform: translateY(-100%); /* Inicialmente escondido fuera de la vista */
+    transition: transform 0.6s ease;
+
+    display: flex; /* Usamos flexbox para centrar el contenido */
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
+
+    z-index: 1000; /* Asegura que el menú esté encima de otros elementos */
 }
 
-.social-media-header > li {
-    width: 1.6875em;
-    height: 1.6875em;
+#menu-desplegable.show-menu {
+    transform: translateY(0); /* Muestra el menú moviéndolo hacia abajo */
+}
+
+/************************************/
+/*Botón para cerrar menú desplegable*/
+/************************************/
+.btn-close-menu-container {
+    height: 3.9375rem;
+    margin-right: auto;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: end;
+}
+
+/************************/
+/*Links menú desplegable*/
+/************************/
+.links-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    flex: 1;
+}
+
+.links-nav > li:nth-child(-n+3) {
+    margin-bottom: 1.875rem;
+}
+
+.links-nav >li > a {
+    color: white;
+    
+    font-size: 2.25rem;
+    font-weight: 600;
+
+    padding: 0.1875rem;
+
+    display: block;
+}
+
+/*************************/
+/*Footer menú desplegable*/
+/*************************/
+.social-media-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 0.9375rem;
+}
+
+.social-media-menu > li {
+    width: 1.875rem;
+    height: 1.875rem;
 
     border-radius: 50%;
 
-    transition: 0.5s all;
-}
-
-.social-media-header > li:nth-child(2) {
-    margin: 0.375em 0;
-}
-
-.social-media-header > li:hover {
     background-color: darkred;
 }
 
-.social-media-header >li > a {
+.social-media-menu > li:nth-child(2) {
+    margin: 0 0.75rem;
+}
+
+.social-media-menu > li > a {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,12 +212,68 @@ ul {
     height: 100%;
 }
 
-.social-media-header a i {
-    color: white;
-    font-size: 1.3125em;
+.social-media-menu > li > a > i {
+    color: black;
+    font-size: 1.125rem;
 }
 
-/*min 305*/
+.menu-desplegable-footer > p {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: white;
+}
+
+/*************/
+/*Logo header*/
+/*************/
+.logo-header > a {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+}
+
+.logo-header > a > img {
+    width: 5.625rem;
+    height: 5.625rem;
+
+    display: block;
+}
+
+/*********************/
+/*Social media header*/
+/*********************/
+.social-media-header > li {
+    width: 1.875rem;
+    height: 1.875rem;
+
+    border-radius: 50%;
+
+    transition: 0.5s all;
+}
+
+.social-media-header > li:nth-child(2) {
+    margin: 0.1875rem 0;
+}
+
+.social-media-header > li:hover {
+    background-color: darkred;
+}
+
+.social-media-header > li > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+.social-media-header > li > a > i {
+    color: white;
+    font-size: 1.125rem;
+}
+
 /*********************/
 /*********************/
 /*Cervezas destacadas*/
@@ -555,89 +680,7 @@ ul {
 
 
 
-.disply-none {
-    display: none;
-}
 
-/* Estilos generales para el menú desplegable */
-#menu-desplegable {
-    position: fixed; /* Fija el menú en la pantalla */
-    top: 0; /* Alinea el menú al borde superior */
-    left: 0; /* Alinea el menú al borde izquierdo */
-
-    width: 100%; /* Hace que el menú cubra todo el ancho */
-    height: 100%; /* Hace que el menú cubra todo el alto */
-
-    background-color: black; /* Fondo negro */
-    color: white; /* Texto blanco */
-
-    transform: translateY(-100%); /* Inicialmente escondido fuera de la vista */
-    transition: transform 0.5s ease; /* Transición suave */
-
-    display: flex; /* Usamos flexbox para centrar el contenido */
-    flex-direction: column; /* Alinea el contenido en columna */
-    justify-content: space-between; /* Centra verticalmente */
-    align-items: center; /* Centra horizontalmente */
-
-    z-index: 1000; /* Asegura que el menú esté encima de otros elementos */
-}
-
-#menu-desplegable.show {
-    transform: translateY(0); /* Muestra el menú moviéndolo hacia abajo */
-}
-
-/*#menu-desplegable.menu-button {*/
-    /*background: none; /* Sin fondo */
-    /*border: none; /* Sin borde */
-    /*color: white; /* Texto blanco */
-    /*font-size: 2rem; /* Tamaño del icono */
-    /*cursor: pointer; /* Cursor de puntero */
-/*}*/
-
-.links-nav {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-
-    margin: auto;
-    /*border: 1px solid red;*/
-}
-
-.links-nav > li {
-    width: 100%;
-}
-
-.links-nav > li {
-    margin-bottom: 1.875em;
-}
-
-.links-nav >li > a {
-    color: white; /* Enlaces en blanco */
-    
-    font-size: 2.4375em;
-    font-weight: 600;
-
-    padding: 0.1875em;
-
-    display: block;
-}
-
-.btn-close-menu-container {
-    height: 5.625em;
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: start;
-}
-
-/*#btn-close-menu {
-    font-size: 18px;
-}*/
-
-.menu-desplegable-footer > p{
-    font-size: 0.75em;
-}
 
 #slider {
     width: 100%;
@@ -677,4 +720,96 @@ ul {
 #img-container > img {
     width: 100%;
     transition: opacity 0.6s ease-in-out;
+}
+
+.more-info-btn {
+    font-size: 18px;
+    padding: 6px 12px;
+    border: none;
+    background-color: black;
+    color: white;
+    font-weight: 500;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.6s ease;
+}
+
+.more-info-btn:hover {
+    background-color: darkred;
+}
+
+.more-info-btn:active {
+    transform: scale(0.95);
+}
+
+
+
+.modal {
+    display: none;
+    justify-content: center;
+    align-items: center;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100vh;
+
+    background-color: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+
+    padding: 15px;
+
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.close-btn {
+    margin-left: auto;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.modal-content img {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.modal-content h2 {
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    text-align: justify;
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 15px;
+}
+
+.btn-comprar {
+    font-size: 21px;
+    border-radius: 15px;
+    padding: 6px 9px;
+    font-weight: 600;
+    border: 1px solid orange;
+    background-color: orange;
 }

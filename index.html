@@ -21,9 +21,6 @@
             <button id="btn-menu" class="menu-button" type="button" aria-label="Abrir menú">
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <div class="logo-header">
-                <a href="#header" aria-label="Inicio"><img src="imgGenerales/logoNombre.png" alt="Logo de Skull Brew"></a>
-            </div>
             <div id="menu-desplegable" class="display-none container">
                 <div class="btn-close-menu-container">
                     <button id="btn-close-menu" class="menu-button" type="button" aria-label="Cerrar menú">
@@ -37,7 +34,7 @@
                     <li><a href="#section-contacto">Contacto</a></li>
                 </ul>
                 <footer class="menu-desplegable-footer">
-                    <ul class="social-media-footer">
+                    <ul class="social-media-menu">
                         <li><a href="https://www.facebook.com/"><i class="fa-brands fa-facebook-f"></i></a></li>
                         <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram"></i></a></li>
                         <li><a href="https://www.whatsapp.com/"><i class="fa-brands fa-whatsapp"></i></a></li>
@@ -45,12 +42,16 @@
                     <p>Cervecería Skull Brew © Todos los derechos reservados</p>
                 </footer>
             </div>
+            <div class="logo-header">
+                <a href="#header" aria-label="Inicio"><img src="imgGenerales/logoNombre.png" alt="Logo de Skull Brew"></a>
+            </div>          
             <ul class="social-media-header">
                 <li><a href="https://www.facebook.com/" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a></li>
                 <li><a href="https://www.instagram.com/" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
                 <li><a href="https://www.whatsapp.com/" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a></li>
             </ul>
         </nav>
+
         <div id="slider">
             <button id="left-slider" class="btn-slider">
                 <i class="fa-solid fa-circle-chevron-left"></i>
@@ -83,8 +84,7 @@
                         <span>60 IBU</span>
                     </div>
                     <footer class="acciones-destacadas">
-                        <span><i class="fa-solid fa-plus"></i></span>
-                        <span><i class="fa-regular fa-eye"></i></span>
+                        <button type="button" class="more-info-btn" data-beer="novedad">Ver más</button>
                     </footer>
                 </div>
                 <div class="cerveza-container">
@@ -101,8 +101,7 @@
                         <span>30 IBU</span>
                     </div>
                     <footer class="acciones-destacadas">
-                        <span><i class="fa-solid fa-plus"></i></span>
-                        <span><i class="fa-regular fa-eye"></i></span>
+                        <button type="button" class="more-info-btn" data-beer="mas-pedida">Ver más</button>
                     </footer>
                 </div>
                 <div class="cerveza-container">
@@ -119,14 +118,23 @@
                         <span>15 IBU</span>
                     </div>
                     <footer class="acciones-destacadas">
-                        <span><i class="fa-solid fa-plus"></i></span>
-                        <span><i class="fa-regular fa-eye"></i></span>
+                        <button type="button" class="more-info-btn" data-beer="clasica">Ver más</button>
                     </footer>
                 </div>
             </div>
             <footer>
                 <button id="btnVerTodas" type="button" class="btn">Ver todas</button>
             </footer>
+
+            <div id="beer-info-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <img src="" alt="" id="beer-img">
+                    <h2 id="beer-title"></h2>
+                    <p id="beer-details"></p>
+                    <button type="button" class="btn-comprar">Comprar</button>
+                </div>
+            </div>
         </section>
 
         <hr class="divisor-seccion">

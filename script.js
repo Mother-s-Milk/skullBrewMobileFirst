@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     /*Calculo el ancho de la ventana para asignar los anchos de los
     contenedores considerando el padding establecido en una variable*/
-    /*function setComponentWidth () {
+    function setComponentWidth () {
         let element = document.querySelector('.container');
         let size = element.clientWidth;
         console.log(size);
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setComponentWidth();
 
-    window.addEventListener('resize', setComponentWidth);*/
+    window.addEventListener('resize', setComponentWidth);
     /**/
     /**/
     /**/

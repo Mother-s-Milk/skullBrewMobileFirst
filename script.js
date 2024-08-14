@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     /*Calculo el ancho de la ventana para asignar los anchos de los
     contenedores considerando el padding establecido en una variable*/
-    function setComponentWidth () {
+    /*function setComponentWidth () {
         let element = document.querySelector('.container');
         let size = element.clientWidth;
         console.log(size);
@@ -13,13 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
         sPadding = parseFloat(sPadding);
 
         // Calcular el nuevo width
-        let width = (size) - (sPadding + sPadding);
+        let width = ((size) - (sPadding + sPadding)) / 16;
 
         // Establecer la nueva variable CSS --s-width
-        document.documentElement.style.setProperty('--s-width', `${width}px`);
+        document.documentElement.style.setProperty('--s-width', `${width}rem`);
     }
+
     setComponentWidth();
-    window.addEventListener('resize', setComponentWidth);
+
+    window.addEventListener('resize', setComponentWidth);*/
     /**/
     /**/
     /**/
@@ -56,10 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
     /**/
     /**/
 
+    /********/
+    /*Slider*/
+    /********/
     let imagenes = [
-        'cervezasDestacadas/destacada1.png',
-        'cervezasDestacadas/destacada2.png',
-        'cervezasDestacadas/destacada3.png'
+        'imgSlider/1.png',
+        'imgSlider/2.png',
+        'imgSlider/3.png'
     ];
     
     let left = document.getElementById('left-slider');

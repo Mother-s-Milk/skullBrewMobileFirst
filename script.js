@@ -3,8 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contenedores considerando el padding establecido en una variable*/
     function setComponentWidth () {
         let element = document.querySelector('.container');
-        let size = element.clientWidth;
-        console.log(size);
+        let size = (element.clientWidth) / 16;
 
         // Obtener el valor de la variable CSS --s-padding
         let sPadding = getComputedStyle(document.documentElement).getPropertyValue('--s-padding');
@@ -13,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sPadding = parseFloat(sPadding);
 
         // Calcular el nuevo width
-        let width = ((size) - (sPadding + sPadding)) / 16;
+        let width = (size) - (sPadding + sPadding);
 
         // Establecer la nueva variable CSS --s-width
         document.documentElement.style.setProperty('--s-width', `${width}rem`);

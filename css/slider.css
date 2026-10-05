@@ -1,0 +1,45 @@
+/********/
+/*Slider*/
+/********/
+#slider {
+    width: 100%;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: auto 0;
+
+    z-index: 1;
+
+    position: relative;
+}
+
+.btn-slider {
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s all;
+
+    width: 1.875rem;
+    height: 1.875rem;
+}
+
+.btn-slider:active {
+    transform: scale(1.2);
+}
+
+.btn-slider > i {
+    color: white;
+    font-size: 1.5em;
+}
+
+#img-container {
+    width: 100%;
+}
+
+#img-container > img {
+    width: 14.109375rem;
+    transition: opacity 0.6s ease-in-out;
+}

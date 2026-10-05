@@ -1,143 +1,202 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skull Brew</title>
-    <!-- CSS -->
-    <link rel="stylesheet" href="styles.css" type="text/css">
-    <!-- JS -->
-    <script defer src="script.js" type="text/javascript"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <header id="header" class="container">
-        <nav class="nav-header" role="navigation">
-            <button id="btn-menu" class="menu-button" type="button" aria-label="Abrir menú">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div id="menu-desplegable" class="display-none container">
-                <div class="btn-close-menu-container">
-                    <button id="btn-close-menu" class="menu-button" type="button" aria-label="Cerrar menú">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <ul class="links-nav">
-                    <li><a href="#header">Inicio</a></li>
-                    <li><a href="#section-cervezas-destacadas">Cervezas</a></li>
-                    <li><a href="#section-nosotros">Nosotros</a></li>
-                    <li><a href="#section-contacto">Contacto</a></li>
-                </ul>
-                <footer class="menu-desplegable-footer">
-                    <ul class="social-media-menu">
-                        <li><a href="https://www.facebook.com/"><i class="fa-brands fa-facebook-f"></i></a></li>
-                        <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram"></i></a></li>
-                    </ul>
-                    <p>Cervecería Skull Brew © Todos los derechos reservados</p>
-                </footer>
-            </div>
-            <div class="logo-header">
-                <a href="#header" aria-label="Inicio"><img src="imgGenerales/logoNombre.png" alt="Logo de Skull Brew"></a>
-            </div>          
-            <ul class="social-media-header">
-                <li><a href="https://www.facebook.com/" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a></li>
-                <li><a href="https://www.instagram.com/" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
-            </ul>
-        </nav>
 
-        <div id="slider">
-            <button id="left-slider" class="btn-slider">
-                <i class="fa-solid fa-circle-chevron-left"></i>
-            </button>
-            <div id="img-container"></div>
-            <button id="right-slider"  class="btn-slider">
-                <i class="fa-solid fa-circle-chevron-right"></i>
-            </button>
+    <title>Skull Brew Cervecería</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Google Fonts -->
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet"> -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/core.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/hero.css" type="text/css">
+    <link rel="stylesheet" href="css/featured-beers.css" type="text/css">
+
+    <!-- JS -->
+    <script defer src="js/mobile-menu.js" type="text/javascript"></script>
+    <!-- <script defer src="js/slider.js" type="text/javascript"></script> -->
+</head>
+
+<body>
+    <header id="header" class="main-header">
+        <div id="mobile-menu" class="display-none container mobile-menu">
+            <div class="close-menu-btn-container">
+                <button id="close-mobile-menu-btn" class="close-menu-btn" type="button" aria-label="Cerrar menú">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <nav class="mobile-nav">
+                <ul class="mobile-links">
+                    <li><a href="#header" class="mobile-link">Inicio</a></li>
+                    <li><a href="#section-cervezas-destacadas" class="mobile-link">Cervezas</a></li>
+                    <li><a href="#section-nosotros" class="mobile-link">Nosotros</a></li>
+                    <li><a href="#section-contacto" class="mobile-link">Contacto</a></li>
+                </ul>
+            </nav>
+
+            <footer class="mobile-menu-footer">
+                <ul class="mobile-social-media">
+                    <li><a href="https://www.facebook.com/"><i class="fa-brands fa-facebook-f"></i></a></li>
+                    <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram"></i></a></li>
+                </ul>
+
+                <p class="mobile-footer-legend">Cervecería Skull Brew</p>
+            </footer>
         </div>
 
+        <button type="button" id="open-mobile-menu-btn" class="main-header-btn" aria-label="Abrir menú">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <a href="#header" aria-label="Inicio" class="main-header-logo">
+            <img src="images/imgGenerales/logoNombre.png" alt="Logo de Skull Brew">
+        </a>
+
+        <button type="button" id="cart-btn" class="main-header-btn" aria-label="Ir al carro de compras">
+            <i class="fa-solid fa-cart-shopping"></i>
+        </button>
     </header>
 
     <main>
-        <section id="section-cervezas-destacadas" class="container">
-            <header class="header-section">
-                <h1>-Cervezas-</h1>
+        <!-- <section class="hero">
+            <div class="hero__content">
+                <span class="hero__eyebrow">Cerveza artesanal</span>
+
+                <h1>Hecha para compartir.</h1>
+
+                <p>
+                    Cervezas elaboradas con dedicación, ingredientes seleccionados
+                    y carácter propio.
+                </p>
+
+                <a href="#productos" class="hero__cta">
+                    Descubrir cervezas
+                </a>
+            </div>
+        </section> -->
+
+        <section id="featured-beers" class="container">
+            <header class="heading-section">
+                <h2>-Cervezas destacadas-</h2>
             </header>
-            <div class="destacadas-container">
-                <div class="cerveza-container">
-                    <span class="etiqueta-destacada" aria-label="Novedad">
+
+            <div class="featured-beers__cards">
+                <div class="beer-card">
+                    <span class="beer-card__tag" aria-label="Novedad">
                         Novedad
                     </span>
-                    <img src="cervezasDestacadas/destacada1.png" alt="Imagen de Lúpulo Salvaje" class="img-destacada">
-                    <h2 class="nombre-destacada">
+
+                    <img src="cervezasDestacadas/destacada1.png" class="beer-card__img" alt="Imagen de Lúpulo Salvaje">
+
+                    <h3 class="beer-card__name">
                         Lúpulo Salvaje
-                    </h2>
-                    <div class="info-destacada">
-                        <span>IPA (Indian Pale Ale)</span>
-                        <span>6.5%</span>
-                        <span>60 IBU</span>
+                    </h3>
+
+                    <div class="beer-card__info">
+                        <span class="beer-card__type">IPA (Indian Pale Ale)</span>
+                        <span class="beer-card__alc">6.5%</span>
+                        <span class="beer-card__ibu">60 IBU</span>
                     </div>
-                    <footer class="acciones-destacadas">
-                        <button type="button" class="more-info-btn" data-beer="novedad"><i class="fa-regular fa-eye"></i></button>
-                    </footer>
+
+                    <div class="beer-card__actions">
+                        <button type="button" class="beer-card__details" data-beer="novedad" data-beer-id="1">
+                            <!-- <i class="fa-regular fa-eye"></i> -->
+                            Ver más
+                        </button>
+                    </div>
                 </div>
-                <div class="cerveza-container">
-                    <span class="etiqueta-destacada" aria-label="La más pedida">
+
+                <div class="beer-card">
+                    <span class="beer-card__tag" aria-label="La más pedida">
                         La más pedida
                     </span>
-                    <img src="cervezasDestacadas/destacada2.png" alt="Imagen de Dorado Miel" class="img-destacada">
-                    <h2 class="nombre-destacada">
+
+                    <img src="cervezasDestacadas/destacada2.png" class="beer-card__img" alt="Imagen de Dorado Miel">
+
+                    <h3 class="beer-card__name">
                         Dorado Miel
-                    </h2>
-                    <div class="info-destacada">
-                        <span>Belgian Tripel</span>
-                        <span>8.5%</span>
-                        <span>30 IBU</span>
+                    </h3>
+
+                    <div class="beer-card__info">
+                        <span class="beer-card__type">Belgian Tripel</span>
+                        <span class="beer-card__alc">8.5%</span>
+                        <span class="beer-card__ibu">30 IBU</span>
                     </div>
-                    <footer class="acciones-destacadas">
-                        <button type="button" class="more-info-btn" data-beer="novedad"><i class="fa-regular fa-eye"></i></button>
-                    </footer>
+
+                    <div class="beer-card__actions">
+                        <button type="button" class="beer-card__details" data-beer="novedad" data-beer-id="2">
+                            <!-- <i class="fa-regular fa-eye"></i> -->
+                            Ver más
+                        </button>
+                    </div>
                 </div>
-                <div class="cerveza-container">
-                    <span class="etiqueta-destacada" aria-label="Clásica">
+
+                <div class="beer-card">
+                    <span class="beer-card__tag" aria-label="Clásica">
                         Clásica
                     </span>
-                    <img src="cervezasDestacadas/destacada3.png" alt="Imagen de Trigo Suave" class="img-destacada">
-                    <h2 class="nombre-destacada">
+
+                    <img src="cervezasDestacadas/destacada3.png" class="beer-card__img" alt="Imagen de Trigo Suave">
+
+                    <h3 class="beer-card__name">
                         Trigo Suave
-                    </h2>
-                    <div class="info-destacada">
-                        <span>Hefeweizen</span>
-                        <span>5.2%</span>
-                        <span>15 IBU</span>
+                    </h3>
+
+                    <div class="beer-card__info">
+                        <span class="beer-card__type">Hefeweizen</span>
+                        <span class="beer-card__alc">5.2%</span>
+                        <span class="beer-card__ibu">15 IBU</span>
                     </div>
-                    <footer class="acciones-destacadas">
-                        <button type="button" class="more-info-btn" data-beer="novedad"><i class="fa-regular fa-eye"></i></button>
-                    </footer>
+
+                    <div class="beer-card__actions">
+                        <button type="button" class="beer-card__details" data-beer="novedad" data-beer-id="3">
+                            <!-- <i class="fa-regular fa-eye"></i> -->
+                            Ver más
+                        </button>
+                    </div>
                 </div>
             </div>
-            <footer>
-                <button id="btn-ver-todas" type="button" class="btn">Ver todas</button>
-            </footer>
 
-            <div id="beer-info-modal" class="modal container">
+            <div id="beer-info-modal" class="modal show">
                 <div class="modal-content">
                     <span class="close-btn">&times;</span>
+
                     <img src="" alt="" id="beer-img">
+
                     <h2 id="beer-title"></h2>
+
                     <p id="beer-details"></p>
-                    <button type="button" class="btn-comprar">Comprar</button>
                 </div>
             </div>
         </section>
 
-        <hr class="divisor-seccion">
+        <!-- <hr class="divisor-seccion"> -->
 
-        <section id="section-mas-productos" class="container">
+        <!-- <section id="slider">
+            <button id="left-slider" class="btn-slider">
+                <i class="fa-solid fa-circle-chevron-left"></i>
+            </button>
+
+            <div id="img-container"></div>
+
+            <button id="right-slider"  class="btn-slider">
+                <i class="fa-solid fa-circle-chevron-right"></i>
+            </button>
+        </section> -->
+
+        <!-- <section id="section-mas-productos" class="container">
             <header class="header-section">
                 <h1>-Más Productos-</h1>
             </header>
@@ -163,9 +222,9 @@
             </div>
         </section>
 
-        <hr class="divisor-seccion">
+        <hr class="divisor-seccion"> -->
 
-        <section id="section-envios" class="container">
+        <!-- <section id="section-envios" class="container">
             <header class="header-section">
                 <h1>-Te llevamos tu pedido-</h1>
             </header>
@@ -198,9 +257,9 @@
             </footer>
         </section>
 
-        <hr class="divisor-seccion">
+        <hr class="divisor-seccion"> -->
 
-        <section id="section-nosotros" class="container">
+        <!-- <section id="section-nosotros" class="container">
             <header class="header-section">
                 <h1>-Nosotros-</h1>
             </header>
@@ -215,9 +274,9 @@
             </article>
         </section>
 
-        <hr class="divisor-seccion">
+        <hr class="divisor-seccion"> -->
 
-        <section id="section-contacto" class="container">
+        <!-- <section id="section-contacto" class="container">
             <header class="header-section">
                 <h1>-Contacto-</h1>
             </header>
@@ -245,10 +304,10 @@
                     </footer>
                 </form>
             </div>
-        </section>
+        </section> -->
     </main>
 
-    <footer id="footer" class="container">
+    <!-- <footer id="footer" class="container">
         <div class="info-footer">
             <img src="imgGenerales/logo.png" alt="Logo de Skull Brew">
             <div class="info-cerveceria">
@@ -265,6 +324,7 @@
             <li><a href="https://www.whatsapp.com/"><i class="fa-brands fa-whatsapp"></i></a></li>
         </ul>
         <p>Cervecería Skull Brew © Todos los derechos reservados</p>
-    </footer>
+    </footer> -->
 </body>
+
 </html>

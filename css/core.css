@@ -1,0 +1,79 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/*Variables para calcular anchos de containers*/
+:root {
+    --font-header: "Quicksand", Arial;
+    --font-body: "Quicksand", Arial;
+}
+
+body {
+    font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-header);
+}
+
+a {
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: none;
+}
+
+button {
+    cursor: pointer;
+
+    font-family: var(--font-body);
+}
+
+.hidden {
+    display: none;
+}
+
+/*Para ocultar el scroll del body si el menú está desplegado*/
+.no-scroll {
+    overflow: hidden;
+}
+
+.container {
+    max-width: 1440px;
+
+    margin: 0 auto;
+
+    padding: 2.5rem 1rem;
+}
+
+.heading-section {
+    text-align: center;
+
+    margin-bottom: 2rem;
+}
+
+.heading-section h2 {
+    font-size: 1.7rem;
+}
+
+/*****************/
+/*****************/
+/*Divisor sección*/
+/*****************/
+/*****************/
+.divisor-seccion {
+    max-width: 1440px;
+    border: none;
+    height: 0.03125rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 0.0625rem 0px rgba(0, 0, 0, 0.3);
+    margin: 0 0.9375rem;
+    border-radius: 0.1875rem;
+}

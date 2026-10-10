@@ -1,0 +1,146 @@
+-- =====================================================
+-- Catálogo de cervecería (MySQL 8+)
+-- Solo catálogo: sin clientes, pedidos ni pagos.
+-- =====================================================
+
+CREATE DATABASE IF NOT EXISTS cerveceria
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE cerveceria;
+
+-- -----------------------------------------------------
+-- Categorías (jerárquicas: Cervezas > IPA, Sin alcohol > Gaseosas)
+-- -----------------------------------------------------
+CREATE TABLE categorias (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  parent_id   INT UNSIGNED NULL,
+  nombre      VARCHAR(100) NOT NULL,
+  slug        VARCHAR(120) NOT NULL UNIQUE,
+  descripcion TEXT NULL,
+  orden       SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  activa      TINYINT(1) NOT NULL DEFAULT 1,
+  created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_categorias_parent
+    FOREIGN KEY (parent_id) REFERENCES categorias(id) ON DELETE SET NULL,
+  INDEX idx_categorias_parent (parent_id)
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Estilos de cerveza (tabla de referencia)
+-- -----------------------------------------------------
+CREATE TABLE estilos_cerveza (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(80) NOT NULL UNIQUE,
+  descripcion TEXT NULL
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Productos (datos comunes a cualquier bebida)
+-- -----------------------------------------------------
+CREATE TABLE productos (
+  id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  categoria_id  INT UNSIGNED NOT NULL,
+  nombre        VARCHAR(150) NOT NULL,
+  slug          VARCHAR(170) NOT NULL UNIQUE,
+  descripcion   TEXT NULL,
+  es_alcoholico TINYINT(1) NOT NULL DEFAULT 0,
+  destacado     TINYINT(1) NOT NULL DEFAULT 0,
+  disponible    TINYINT(1) NOT NULL DEFAULT 1,  -- visible pero sin disponibilidad (ej. agotada)
+  activo        TINYINT(1) NOT NULL DEFAULT 1,  -- borrado lógico / oculto en la web
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_productos_categoria
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id),
+  INDEX idx_productos_categoria (categoria_id),
+  INDEX idx_productos_activo (activo, disponible),
+  INDEX idx_productos_destacado (destacado)
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Detalle específico de cervezas (relación 1:1 con productos)
+-- -----------------------------------------------------
+CREATE TABLE cervezas_detalle (
+  producto_id   INT UNSIGNED PRIMARY KEY,
+  estilo_id     INT UNSIGNED NULL,
+  abv           DECIMAL(4,2) NULL,          -- % de alcohol, ej. 5.50
+  ibu           SMALLINT UNSIGNED NULL,     -- amargor
+  srm           DECIMAL(4,1) NULL,          -- color
+  maltas        VARCHAR(255) NULL,
+  lupulos       VARCHAR(255) NULL,
+  notas_cata    TEXT NULL,
+  maridaje      VARCHAR(255) NULL,
+  CONSTRAINT fk_cervezas_producto
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cervezas_estilo
+    FOREIGN KEY (estilo_id) REFERENCES estilos_cerveza(id) ON DELETE SET NULL,
+  INDEX idx_cervezas_estilo (estilo_id)
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Presentaciones (formato + precio): lata, botella, growler, pinta, barril...
+-- -----------------------------------------------------
+CREATE TABLE presentaciones (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  producto_id  INT UNSIGNED NOT NULL,
+  formato      VARCHAR(50) NOT NULL,        -- 'Lata', 'Botella', 'Growler', 'Pinta'
+  volumen_ml   INT UNSIGNED NULL,
+  precio       DECIMAL(10,2) NOT NULL,
+  sku          VARCHAR(50) NULL UNIQUE,
+  disponible   TINYINT(1) NOT NULL DEFAULT 1,
+  orden        SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_presentaciones_producto
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+  INDEX idx_presentaciones_producto (producto_id)
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Imágenes de producto
+-- -----------------------------------------------------
+CREATE TABLE producto_imagenes (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  producto_id  INT UNSIGNED NOT NULL,
+  url          VARCHAR(255) NOT NULL,
+  alt_text     VARCHAR(150) NULL,
+  es_principal TINYINT(1) NOT NULL DEFAULT 0,
+  orden        SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  CONSTRAINT fk_imagenes_producto
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+  INDEX idx_imagenes_producto (producto_id)
+) ENGINE=InnoDB;
+
+-- =====================================================
+-- Datos de ejemplo (borrar o adaptar)
+-- =====================================================
+INSERT INTO estilos_cerveza (nombre) VALUES
+  ('IPA'), ('APA'), ('Honey'), ('Stout'), ('Scotch'), ('Golden'), ('Kölsch'), ('Porter');
+
+INSERT INTO categorias (id, parent_id, nombre, slug, orden) VALUES
+  (1, NULL, 'Cervezas',    'cervezas',    1),
+  (2, NULL, 'Sin alcohol', 'sin-alcohol', 2),
+  (3, NULL, 'Vinos',       'vinos',       3),
+  (4, NULL, 'Tragos',      'tragos',      4);
+
+INSERT INTO productos (categoria_id, nombre, slug, descripcion, es_alcoholico, destacado)
+VALUES (1, 'Patagonia IPA', 'patagonia-ipa', 'IPA con lúpulos cítricos y amargor marcado.', 1, 1);
+
+INSERT INTO cervezas_detalle (producto_id, estilo_id, abv, ibu, srm, lupulos)
+VALUES (LAST_INSERT_ID(), 1, 6.20, 55, 8.0, 'Cascade, Citra');
+
+INSERT INTO presentaciones (producto_id, formato, volumen_ml, precio, orden) VALUES
+  (1, 'Pinta',   473,  4500.00, 1),
+  (1, 'Growler', 1000, 8500.00, 2);
+
+-- =====================================================
+-- Consulta de ejemplo: catálogo de cervezas con presentaciones
+-- =====================================================
+-- SELECT p.nombre, e.nombre AS estilo, c.abv, c.ibu,
+--        pr.formato, pr.volumen_ml, pr.precio
+-- FROM productos p
+-- JOIN cervezas_detalle c ON c.producto_id = p.id
+-- LEFT JOIN estilos_cerveza e ON e.id = c.estilo_id
+-- JOIN presentaciones pr ON pr.producto_id = p.id AND pr.disponible = 1
+-- WHERE p.activo = 1
+-- ORDER BY p.nombre, pr.orden;

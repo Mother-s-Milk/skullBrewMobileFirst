@@ -1,0 +1,17 @@
+{
+    "name": "franco/skull-brew-cerveceria",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "app\\core\\": "core/",
+            "app\\libs\\": "libs/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mother-s-Milk",
+            "email": "francoveradrms@gmail.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,15 +1,40 @@
 -- =====================================================
--- Catálogo de cervecería (MySQL 8+)
+-- Skull Brew - Catálogo de cervecería (MySQL 8+)
 -- Solo catálogo: sin clientes, pedidos ni pagos.
+-- Incluye usuarios del panel con roles.
 -- =====================================================
 
-CREATE DATABASE IF NOT EXISTS cerveceria
+CREATE DATABASE IF NOT EXISTS cerveceria_skull_brew
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-USE cerveceria;
+USE cerveceria_skull_brew;
 
 -- -----------------------------------------------------
--- Categorías (jerárquicas: Cervezas > IPA, Sin alcohol > Gaseosas)
+-- Roles y usuarios del panel de administración
+-- -----------------------------------------------------
+CREATE TABLE roles (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(50) NOT NULL UNIQUE,    -- 'admin', 'encargado', 'vendedor'
+  descripcion VARCHAR(255) NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE usuarios (
+  id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  rol_id        INT UNSIGNED NOT NULL,
+  nombre        VARCHAR(100) NOT NULL,
+  email         VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,        -- generado con password_hash() de PHP
+  activo        TINYINT(1) NOT NULL DEFAULT 1,
+  ultimo_acceso TIMESTAMP NULL,
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_usuarios_rol
+    FOREIGN KEY (rol_id) REFERENCES roles(id),
+  INDEX idx_usuarios_rol (rol_id)
+) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Categorías (jerárquicas: Sin alcohol > Gaseosas)
 -- -----------------------------------------------------
 CREATE TABLE categorias (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -46,6 +71,7 @@ CREATE TABLE productos (
   descripcion   TEXT NULL,
   es_alcoholico TINYINT(1) NOT NULL DEFAULT 0,
   destacado     TINYINT(1) NOT NULL DEFAULT 0,
+  badge         VARCHAR(30) NULL,
   disponible    TINYINT(1) NOT NULL DEFAULT 1,  -- visible pero sin disponibilidad (ej. agotada)
   activo        TINYINT(1) NOT NULL DEFAULT 1,  -- borrado lógico / oculto en la web
   created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -112,6 +138,20 @@ CREATE TABLE producto_imagenes (
 ) ENGINE=InnoDB;
 
 -- =====================================================
+-- Datos iniciales
+-- =====================================================
+INSERT INTO roles (nombre, descripcion) VALUES
+  ('admin',     'Acceso total, incluida la gestión de usuarios, categorías y estilos'),
+  ('encargado', 'Gestiona productos, precios e imágenes'),
+  ('vendedor',  'Consulta el catálogo y marca disponibilidad; a futuro operará el punto de venta');
+
+-- El primer usuario admin se crea desde PHP, porque el hash se genera con password_hash():
+--   echo password_hash('tu_clave_segura', PASSWORD_DEFAULT);
+-- y luego:
+--   INSERT INTO usuarios (rol_id, nombre, email, password_hash)
+--   VALUES (1, 'Nombre', 'mail@ejemplo.com', '<hash generado>');
+
+-- =====================================================
 -- Datos de ejemplo (borrar o adaptar)
 -- =====================================================
 INSERT INTO estilos_cerveza (nombre) VALUES
@@ -123,8 +163,8 @@ INSERT INTO categorias (id, parent_id, nombre, slug, orden) VALUES
   (3, NULL, 'Vinos',       'vinos',       3),
   (4, NULL, 'Tragos',      'tragos',      4);
 
-INSERT INTO productos (categoria_id, nombre, slug, descripcion, es_alcoholico, destacado)
-VALUES (1, 'Patagonia IPA', 'patagonia-ipa', 'IPA con lúpulos cítricos y amargor marcado.', 1, 1);
+INSERT INTO productos (categoria_id, nombre, slug, descripcion, es_alcoholico, destacado, badge)
+VALUES (1, 'Patagonia IPA', 'patagonia-ipa', 'IPA con lúpulos cítricos y amargor marcado.', 1, 1, 'Más vendida');
 
 INSERT INTO cervezas_detalle (producto_id, estilo_id, abv, ibu, srm, lupulos)
 VALUES (LAST_INSERT_ID(), 1, 6.20, 55, 8.0, 'Cascade, Citra');

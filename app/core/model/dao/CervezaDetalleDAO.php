@@ -40,11 +40,9 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
             "notas_cata" => $data["notas_cata"],
             "maridaje" => $data["maridaje"]
         ]);
-
-        $object->setId((int) $this->conn->lastInsertId());
     }
 
-    public function load(int $id): InterfaceDTO
+    public function load(int $producto_id): InterfaceDTO
     {
         $sql = "
             SELECT
@@ -60,16 +58,16 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
             FROM 
                 {$this->table} dc
             WHERE
-                dc.id = :id
+                dc.producto_id = :producto_id
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(["id" => $id]);
+        $stmt->execute(["producto_id" => $producto_id]);
 
         //prueba de id inexistente
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
         if (!$data) {
-            throw new \Exception("Elemento con ID {$id} no encontrado.");
+            throw new \Exception("Elemento con ID {$producto_id} no encontrado.");
         }
 
         return new CervezaDetalleDTO($data);
@@ -81,7 +79,6 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
             UPDATE
                 {$this->table}
             SET
-                producto_id = :producto_id,
                 estilo_id = :estilo_id,
                 abv = :abv,
                 ibu = :ibu,
@@ -90,7 +87,8 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
                 lupulos = :lupulos,
                 notas_cata = :notas_cata,
                 maridaje = :maridaje
-            WHERE id = :id
+            WHERE
+                producto_id = :producto_id
         ";
 
         $stmt = $this->conn->prepare($sql);
@@ -109,20 +107,20 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
         ]);
     }
 
-    public function delete(int $id): void
+    public function delete(int $producto_id): void
     {
         $sql = "
             DELETE FROM
                 {$this->table}
             WHERE
-                id = :id
+                producto_id = :producto_id
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(["id" => $id]);
+        $stmt->execute(["producto_id" => $producto_id]);
 
         if ($stmt->rowCount() === 0) {
-            throw new \Exception("No se encontró el elemento con ID {$id}.");
+            throw new \Exception("No se encontró el elemento con ID {$producto_id}.");
         }
     }
 
@@ -134,72 +132,9 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
                     *
                 FROM
                     {$this->table}
-                ORDER BY
-                    orden ASC, nombre ASC
             ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    /* RETURNS LIST WITH FILTERS APPLIED, IF ANY EXIST */
-    public function listPaginated(array $params): array
-    {
-        $currentPage  = max(1, (int) ($params['page'] ?? 1));
-        $itemsPerPage = min(100, max(1, (int) ($params['limit'] ?? 15)));
-        $filters = $params['filters'] ?? [];
-
-        $offset = ($currentPage - 1) * $itemsPerPage;
-
-        $where = [];
-        $queryParams = [];
-
-        $whereClause = '';
-        if (!empty($where)) {
-            $whereClause = 'WHERE ' . implode(' AND ', $where);
-        }
-
-        $countSql = "
-                SELECT
-                    COUNT(*)
-                FROM
-                    {$this->table} AS c
-                {$whereClause}
-            ";
-        $countStmt = $this->conn->prepare($countSql);
-        $countStmt->execute($queryParams);
-        $totalCervezasDetalle = (int) $countStmt->fetchColumn();
-
-        $sql = "
-                SELECT
-                    cd.producto_id,
-                    cd.estilo_id,
-                    cd.abv,
-                    cd.ibu,
-                    cd.srm,
-                    cd.maltas,
-                    cd.lupulos,
-                    cd.notas_cata,
-                    cd.maridaje
-                FROM
-                    {$this->table} AS cd
-                {$whereClause}
-                LIMIT :limit OFFSET :offset
-            ";
-
-        $stmt = $this->conn->prepare($sql);
-        foreach ($queryParams as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-        $stmt->bindValue(':limit', $itemsPerPage, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $cervezasDetalle = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return [
-            'cervezasDetalle' => $cervezasDetalle,
-            'totalCervezasDetalle' => $totalCervezasDetalle
-        ];
     }
 }

@@ -18,6 +18,10 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
 
     public function save(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        $this->validate($data);
+
         $sql = "
                 INSERT INTO
                     {$this->table}
@@ -27,23 +31,38 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
             ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
-        $stmt->execute([
-            "producto_id" => $data["producto_id"],
-            "estilo_id" => $data["estilo_id"],
-            "abv" => $data["abv"],
-            "ibu" => $data["ibu"],
-            "srm" => $data["srm"],
-            "maltas" => $data["maltas"],
-            "lupulos" => $data["lupulos"],
-            "notas_cata" => $data["notas_cata"],
-            "maridaje" => $data["maridaje"]
-        ]);
+        try {
+            $stmt->execute([
+                "producto_id" => $data["producto_id"],
+                "estilo_id" => $data["estilo_id"],
+                "abv" => $data["abv"],
+                "ibu" => $data["ibu"],
+                "srm" => $data["srm"],
+                "maltas" => $data["maltas"],
+                "lupulos" => $data["lupulos"],
+                "notas_cata" => $data["notas_cata"],
+                "maridaje" => $data["maridaje"]
+            ]);
+        } catch (\PDOException $e) {
+            $code = $e->errorInfo[1] ?? null;
+
+            if ($code === 1062) {
+                throw new \InvalidArgumentException("El producto {$data["producto_id"]} ya tiene detalle de cerveza.");
+            }
+            if ($code === 1452) {
+                throw new \InvalidArgumentException("El producto o el estilo indicado no existe.");
+            }
+            throw $e;
+        }
     }
 
     public function load(int $producto_id): InterfaceDTO
     {
+        if ($producto_id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
         $sql = "
             SELECT
                 dc.producto_id,
@@ -75,6 +94,17 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
 
     public function update(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        $this->validate($data);
+
+        $check = $this->conn->prepare("SELECT 1 FROM {$this->table} WHERE producto_id = :producto_id");
+        $check->execute(["producto_id" => $data["producto_id"]]);
+
+        if ($check->fetchColumn() === false) {
+            throw new \InvalidArgumentException("El producto {$data["producto_id"]} no tiene detalle de cerveza.");
+        }
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -92,19 +122,27 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
-        $stmt->execute([
-            "producto_id" => $data["producto_id"],
-            "estilo_id" => $data["estilo_id"],
-            "abv" => $data["abv"],
-            "ibu" => $data["ibu"],
-            "srm" => $data["srm"],
-            "maltas" => $data["maltas"],
-            "lupulos" => $data["lupulos"],
-            "notas_cata" => $data["notas_cata"],
-            "maridaje" => $data["maridaje"]
-        ]);
+        try {
+            $stmt->execute([
+                "producto_id" => $data["producto_id"],
+                "estilo_id" => $data["estilo_id"],
+                "abv" => $data["abv"],
+                "ibu" => $data["ibu"],
+                "srm" => $data["srm"],
+                "maltas" => $data["maltas"],
+                "lupulos" => $data["lupulos"],
+                "notas_cata" => $data["notas_cata"],
+                "maridaje" => $data["maridaje"]
+            ]);
+        } catch (\PDOException $e) {
+            $code = $e->errorInfo[1] ?? null;
+
+            if ($code === 1452) {
+                throw new \InvalidArgumentException("El estilo indicado no existe.");
+            }
+            throw $e;
+        }
     }
 
     public function delete(int $producto_id): void
@@ -125,16 +163,29 @@ final class CervezaDetalleDAO extends DAO implements InterfaceDAO
     }
 
     /* RETURN ALL ITEMS */
-    public function list(): array
+    public function listAll(): array
     {
         $sql = "
                 SELECT
                     *
                 FROM
                     {$this->table}
+                ORDER BY
+                    producto_id ASC
             ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => new CervezaDetalleDTO($row), $list);
+    }
+
+    /* PRIVATE */
+    private function validate(array $data): void
+    {
+        if ($data["producto_id"] === null) {
+            throw new \InvalidArgumentException("El producto_id es obligatorio.");
+        }
     }
 }

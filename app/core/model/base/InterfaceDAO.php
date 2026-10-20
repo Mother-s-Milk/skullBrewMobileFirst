@@ -1,17 +1,18 @@
 <?php
 
-    namespace app\core\model\base;
+namespace app\core\model\base;
 
-    use app\core\model\base\InterfaceDTO;
+use app\core\model\base\InterfaceDTO;
 
-    interface InterfaceDAO {
+interface InterfaceDAO
+{
+    public function save(InterfaceDTO $object): void;
 
-        public function save (InterfaceDTO $object): void;
+    public function load(int $id): InterfaceDTO;
 
-        public function load (int $id): InterfaceDTO;
+    public function update(InterfaceDTO $object): void;
 
-        public function update (InterfaceDTO $object): void;
+    public function delete(int $id): void;
 
-        public function delete (int $id): void;
-
-    }
+    public function listAll(): array;
+}

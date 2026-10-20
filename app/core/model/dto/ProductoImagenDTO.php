@@ -3,6 +3,8 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
+use app\core\util\Casteo;
+
 use InvalidArgumentException;
 
 final class ProductoImagenDTO implements InterfaceDTO
@@ -17,12 +19,12 @@ final class ProductoImagenDTO implements InterfaceDTO
 
     public function __construct(array $data = [])
     {
-        $this->setId($data["id"] ?? null);
-        $this->setProductoId($data["producto_id"] ?? null);
-        $this->setUrl($data["url"] ?? null);
+        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
+        $this->setProductoId(Casteo::entero($data["producto_id"] ?? null, "producto_id"));
+        $this->setUrl($data["url"] ?? "");
         $this->setAltText($data["alt_text"] ?? null);
-        $this->setEsPrincipal((bool) ($data["es_principal"] ?? null));
-        $this->setOrden((int) ($data["orden"] ?? 0));
+        $this->setEsPrincipal(Casteo::booleano($data["es_principal"] ?? null, "es_principal") ?? false);
+        $this->setOrden(Casteo::entero($data["orden"] ?? null, "orden") ?? 0);
     }
 
     /***********/
@@ -86,7 +88,7 @@ final class ProductoImagenDTO implements InterfaceDTO
         if (mb_strlen($alt_text) > 150) {
             throw new InvalidArgumentException("El texto alternativo no puede superar los 150 caracteres.");
         }
-        $this->alt_text = $alt_text;
+        $this->alt_text = $alt_text === "" ? null : $alt_text;
     }
 
     public function setEsPrincipal(bool $es_principal): void

@@ -3,6 +3,8 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
+use app\core\util\Casteo;
+
 use DateTimeImmutable;
 use InvalidArgumentException;
 
@@ -21,14 +23,14 @@ final class PresentacionDTO implements InterfaceDTO
 
     public function __construct(array $data = [])
     {
-        $this->setId($data["id"] ?? null);
-        $this->setProductoId($this->aEntero($data["producto_id"] ?? null));
-        $this->setFormato($data["formato"] ?? null);
-        $this->setVolumenMl($this->aEntero($data["volumen_ml"] ?? null));
-        $this->setPrecio($this->aDecimal($data["precio"] ?? null));
+        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
+        $this->setProductoId(Casteo::entero($data["producto_id"] ?? null, "producto_id"));
+        $this->setFormato($data["formato"] ?? "");
+        $this->setVolumenMl(Casteo::entero($data["volumen_ml"] ?? null, "volumen_ml"));
+        $this->setPrecio(Casteo::decimal($data["precio"] ?? null, "precio") ?? 0.0);
         $this->setSku($data["sku"] ?? null);
-        $this->setDisponible((bool) ($data["disponible"] ?? true));
-        $this->setOrden((int) ($data["orden"] ?? 0));
+        $this->setDisponible(Casteo::booleano($data["disponible"] ?? true, "disponible"));
+        $this->setOrden(Casteo::entero($data["orden"] ?? 0, "orden"));
 
         // Los completa MySQL: solo se cargan cuando el DAO lee de la base
         $this->created_at = $this->parseFecha($data["created_at"] ?? null);
@@ -119,19 +121,19 @@ final class PresentacionDTO implements InterfaceDTO
 
     public function setPrecio(float $precio): void
     {
-        if ($precio !== null && ($precio < 0 || $precio > 99999999.99)) {
+        if ($precio < 0 || $precio > 99999999.99) {
             throw new InvalidArgumentException("El precio debe estar entre 0 y 99999999.99.");
         }
-        $this->precio = $precio !== null ? round($precio, 2) : null;
+        $this->precio = round($precio, 2);
     }
 
     public function setSku(?string $sku): void
     {
-        $sku = trim($sku);
+        $sku = $sku === null ? "" : trim($sku);
         if (mb_strlen($sku) > 50) {
             throw new InvalidArgumentException("El sku no puede superar los 50 caracteres.");
         }
-        $this->sku = $sku;
+        $this->sku = $sku === "" ? null : $sku;
     }
 
     public function setDisponible(bool $disponible): void
@@ -176,35 +178,5 @@ final class PresentacionDTO implements InterfaceDTO
             return null;
         }
         return $valor instanceof DateTimeImmutable ? $valor : new DateTimeImmutable($valor);
-    }
-
-    /* PRIVATE */
-    private function aEntero(mixed $valor): ?int
-    {
-        if (is_string($valor)) {
-            $valor = trim($valor);
-        }
-        if ($valor === null || $valor === "") {
-            return null;
-        }
-        $entero = filter_var($valor, FILTER_VALIDATE_INT);
-        if ($entero === false) {
-            throw new InvalidArgumentException("Se esperaba un número entero.");
-        }
-        return $entero;
-    }
-
-    private function aDecimal(mixed $valor): ?float
-    {
-        if (is_string($valor)) {
-            $valor = str_replace(",", ".", trim($valor));
-        }
-        if ($valor === null || $valor === "") {
-            return null;
-        }
-        if (!is_numeric($valor)) {
-            throw new InvalidArgumentException("Se esperaba un número decimal.");
-        }
-        return (float) $valor;
     }
 }

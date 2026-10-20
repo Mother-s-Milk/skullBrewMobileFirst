@@ -1,15 +1,15 @@
 <?php
 
-    namespace app\core\model\base;
+namespace app\core\model\base;
 
-    class DAO {
+class DAO
+{
+    protected \PDO $conn;
+    protected string $table;
 
-        protected $conn;
-        protected $table;
-
-        public function __construct ($conn, $table) {
-            $this->conn = $conn;
-            $this->table = $table;
-        }
-        
+    public function __construct(\PDO $conn, string $table)
+    {
+        $this->conn = $conn;
+        $this->table = $table;
     }
+}

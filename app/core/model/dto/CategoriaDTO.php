@@ -3,19 +3,20 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
+use app\core\util\Casteo;
+
 use DateTimeImmutable;
 use InvalidArgumentException;
 
 final class CategoriaDTO implements InterfaceDTO
 {
-
     private ?int $id;
     private ?int $parent_id;
     private string $nombre;
     private string $slug;
     private ?string $descripcion;
     private int $orden;
-    private bool $activa;
+    private int $activa;
     private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 
@@ -26,12 +27,12 @@ final class CategoriaDTO implements InterfaceDTO
         $this->setNombre($data["nombre"] ?? "");
         $this->setSlug($data["slug"] ?? "");
         $this->setDescripcion($data["descripcion"] ?? null);
-        $this->setOrden((int) ($data["orden"] ?? 0));
-        $this->setActiva((bool) ($data["activa"] ?? true));
+        $this->setOrden($data["orden"] ?? 0);
+        $this->setActiva($data["activa"] ?? 1);
 
         // Los completa MySQL: solo se cargan cuando el DAO lee de la base
-        $this->created_at = $this->parseFecha($data["created_at"] ?? null);
-        $this->updated_at = $this->parseFecha($data["updated_at"] ?? null);
+        $this->created_at = Casteo::parseFecha($data["created_at"] ?? null);
+        $this->updated_at = Casteo::parseFecha($data["updated_at"] ?? null);
     }
 
     /***********/
@@ -67,7 +68,7 @@ final class CategoriaDTO implements InterfaceDTO
         return $this->orden;
     }
 
-    public function getActiva(): bool
+    public function getActiva(): int
     {
         return $this->activa;
     }
@@ -87,56 +88,56 @@ final class CategoriaDTO implements InterfaceDTO
     /***********/
     public function setId(?int $id): void
     {
-        // null = categoría todavía no guardada en la base
         $this->id = ($id !== null && $id > 0) ? $id : null;
     }
 
     public function setParentId(?int $parent_id): void
     {
-        // null = categoría raíz (sin padre)
-        $this->parent_id = ($parent_id !== null && $parent_id > 0) ? $parent_id : null;
+        $this->parent_id = $parent_id > 0 ? $parent_id : null;
     }
 
     public function setNombre(string $nombre): void
     {
         $nombre = trim($nombre);
+
         if (mb_strlen($nombre) > 100) {
             throw new InvalidArgumentException("El nombre no puede superar los 100 caracteres.");
         }
+
         $this->nombre = $nombre;
     }
 
     public function setSlug(string $slug): void
     {
         $slug = trim($slug);
+
         if (mb_strlen($slug) > 120) {
             throw new InvalidArgumentException("El slug no puede superar los 120 caracteres.");
         }
+
         $this->slug = $slug;
     }
 
     public function setDescripcion(?string $descripcion): void
     {
         $descripcion = $descripcion === null ? "" : trim($descripcion);
+
         if (mb_strlen($descripcion) > 500) {
             throw new InvalidArgumentException("La descripción no puede superar los 500 caracteres.");
         }
+
         // Vacío se guarda como NULL en la base
         $this->descripcion = $descripcion === "" ? null : $descripcion;
     }
 
     public function setOrden(int $orden): void
     {
-        // La columna es SMALLINT UNSIGNED: 0 a 65535
-        if ($orden < 0 || $orden > 65535) {
-            throw new InvalidArgumentException("El orden debe estar entre 0 y 65535.");
-        }
-        $this->orden = $orden;
+        $this->orden = $orden > 0 ? $orden : 0;
     }
 
-    public function setActiva(bool $activa): void
+    public function setActiva(int $activa): void
     {
-        $this->activa = $activa;
+        $this->activa = (($activa === 0) || ($activa === 1)) ? $activa : 0;
     }
 
     /*********************/
@@ -155,16 +156,5 @@ final class CategoriaDTO implements InterfaceDTO
             "created_at" => $this->getCreatedAt()?->format("d-m-Y H:i:s"),
             "updated_at" => $this->getUpdatedAt()?->format("d-m-Y H:i:s")
         ];
-    }
-
-    /***********/
-    /* PRIVATE */
-    /***********/
-    private function parseFecha(mixed $valor): ?DateTimeImmutable
-    {
-        if ($valor === null || $valor === "") {
-            return null;
-        }
-        return $valor instanceof DateTimeImmutable ? $valor : new DateTimeImmutable($valor);
     }
 }

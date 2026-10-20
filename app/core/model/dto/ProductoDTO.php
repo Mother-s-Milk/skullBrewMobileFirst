@@ -3,6 +3,8 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
+use app\core\util\Casteo;
+
 use DateTimeImmutable;
 use InvalidArgumentException;
 
@@ -24,16 +26,16 @@ final class ProductoDTO implements InterfaceDTO
 
     public function __construct(array $data = [])
     {
-        $this->setId($data["id"] ?? null);
-        $this->setCategoriaId($data["categoria_id"] ?? null);
+        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
+        $this->setCategoriaId(Casteo::entero($data["categoria_id"] ?? null, "categoria_id"));
         $this->setNombre($data["nombre"] ?? "");
         $this->setSlug($data["slug"] ?? "");
         $this->setDescripcion($data["descripcion"] ?? null);
-        $this->setEsAlcoholico($data["es_alcoholico"] ?? null);
-        $this->setDestacado($data["destacado"] ?? null);
+        $this->setEsAlcoholico(Casteo::booleano($data["es_alcoholico"] ?? null, "es_alcoholico") ?? false);
+        $this->setDestacado(Casteo::booleano($data["destacado"] ?? null, "destacado") ?? false);
         $this->setBadge($data["badge"] ?? null);
-        $this->setDisponible($data["disponible"] ?? null);
-        $this->setActivo((bool) ($data["activo"] ?? true));
+        $this->setDisponible(Casteo::booleano($data["disponible"] ?? null, "disponible") ?? true);
+        $this->setActivo(Casteo::booleano($data["activo"] ?? null, "activo") ?? true);
 
         // Los completa MySQL: solo se cargan cuando el DAO lee de la base
         $this->created_at = $this->parseFecha($data["created_at"] ?? null);

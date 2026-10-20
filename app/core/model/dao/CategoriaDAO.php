@@ -18,6 +18,10 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
 
     public function save(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        $this->validate($data);
+
         $sql = "
                 INSERT INTO
                     {$this->table}
@@ -27,7 +31,6 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
             ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
         try {
             $stmt->execute([
@@ -36,10 +39,13 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
                 "slug" => $data["slug"],
                 "descripcion" => $data["descripcion"],
                 "orden" => $data["orden"],
-                "activa" => (int) $data["activa"]
+                "activa" => $data["activa"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El slug '{$data["slug"]}' ya existe.");
+            }
+            throw $e;
         }
 
         $object->setId((int) $this->conn->lastInsertId());
@@ -47,6 +53,10 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
 
     public function load(int $id): InterfaceDTO
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
         $sql = "
             SELECT
                 c.id,
@@ -78,6 +88,14 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
 
     public function update(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        if ($data["id"] === null) {
+            throw new \InvalidArgumentException("No se puede actualizar una categoría sin ID.");
+        }
+
+        $this->validate($data);
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -90,17 +108,7 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
                 activa = :activa
             WHERE id = :id
         ";
-
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
-
-        if ($data["id"] === null) {
-            throw new \InvalidArgumentException("No se puede actualizar una categoría sin ID.");
-        }
-
-        if ($data["parent_id"] === $data["id"]) {
-            throw new \InvalidArgumentException("Una categoría no puede ser su propio padre.");
-        }
 
         try {
             $stmt->execute([
@@ -110,10 +118,13 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
                 "slug" => $data["slug"],
                 "descripcion" => $data["descripcion"],
                 "orden" => $data["orden"],
-                "activa" => (int) $data["activa"]
+                "activa" => $data["activa"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El slug '{$data["slug"]}' ya existe.");
+            }
+            throw $e;
         }
     }
 
@@ -139,11 +150,7 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        try {
-            $stmt->execute(["id" => $id]);
-        } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
-        }
+        $stmt->execute(["id" => $id]);
 
         if ($stmt->rowCount() === 0) {
             throw new \Exception("No se encontró el elemento con ID {$id}.");
@@ -151,7 +158,7 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
     }
 
     /* RETURN ALL ITEMS */
-    public function list(): array
+    public function listAll(): array
     {
         $sql = "
                 SELECT
@@ -163,82 +170,25 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
             ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => new CategoriaDTO($row), $list);
     }
 
-    /* RETURNS LIST WITH FILTERS APPLIED, IF ANY EXIST */
-    public function listPaginated(array $params): array
-    {
-        $currentPage  = max(1, (int) ($params['page'] ?? 1));
-        $itemsPerPage = min(100, max(1, (int) ($params['limit'] ?? 15)));
-        $filters = $params['filters'] ?? [];
-
-        $offset = ($currentPage - 1) * $itemsPerPage;
-
-        $where = [];
-        $queryParams = [];
-
-        $whereClause = '';
-        if (!empty($where)) {
-            $whereClause = 'WHERE ' . implode(' AND ', $where);
-        }
-
-        $countSql = "
-                SELECT
-                    COUNT(*)
-                FROM
-                    {$this->table} AS c
-                {$whereClause}
-            ";
-        $countStmt = $this->conn->prepare($countSql);
-        $countStmt->execute($queryParams);
-        $totalCategorias = (int) $countStmt->fetchColumn();
-
-        $sql = "
-                SELECT
-                    c.id,
-                    c.parent_id,
-                    c.nombre,
-                    c.slug,
-                    c.descripcion,
-                    c.orden,
-                    c.activa,
-                    c.created_at,
-                    c.updated_at
-                FROM
-                    {$this->table} AS c
-                {$whereClause}
-                ORDER BY
-                    c.orden ASC, c.nombre ASC
-                LIMIT :limit OFFSET :offset
-            ";
-
-        $stmt = $this->conn->prepare($sql);
-        foreach ($queryParams as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-        $stmt->bindValue(':limit', $itemsPerPage, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $categorias = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return [
-            'categorias' => $categorias,
-            'totalCategorias' => $totalCategorias
-        ];
-    }
-
-    /***********/
     /* PRIVATE */
-    /***********/
-    private function lanzarErrorAmigable(\PDOException $e): never  // never requiere PHP 8.1+ (o cambiar a void)
+    private function validate(array $data): void
     {
-        match ($e->errorInfo[1] ?? null) {
-            1062 => throw new \InvalidArgumentException("Ya existe una categoría con ese slug."),
-            1452 => throw new \InvalidArgumentException("La categoría padre no existe."),
-            1451 => throw new \InvalidArgumentException("No se puede eliminar: la categoría tiene productos asociados. Desactivala en su lugar."),
-            default => throw $e,
-        };
+        if ($data["parent_id"] !== null && $data["parent_id"] === $data["id"]) {
+            throw new \InvalidArgumentException("Una categoría no puede ser su propio padre.");
+        }
+
+        if ($data["nombre"] === "") {
+            throw new \InvalidArgumentException("El nombre no puede estar vacío.");
+        }
+
+        if ($data["slug"] === "") {
+            throw new \InvalidArgumentException("El slug no puede estar vacío.");
+        }
     }
 }

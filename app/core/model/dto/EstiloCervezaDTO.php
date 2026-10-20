@@ -3,6 +3,8 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
+use app\core\util\Casteo;
+
 use InvalidArgumentException;
 
 final class EstiloCervezaDTO implements InterfaceDTO
@@ -14,7 +16,7 @@ final class EstiloCervezaDTO implements InterfaceDTO
 
     public function __construct(array $data = [])
     {
-        $this->setId($data["id"] ?? null);
+        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
         $this->setNombre($data["nombre"] ?? "");
         $this->setDescripcion($data["descripcion"] ?? null);
     }
@@ -49,8 +51,8 @@ final class EstiloCervezaDTO implements InterfaceDTO
     public function setNombre(string $nombre): void
     {
         $nombre = trim($nombre);
-        if (mb_strlen($nombre) > 100) {
-            throw new InvalidArgumentException("El nombre no puede superar los 100 caracteres.");
+        if (mb_strlen($nombre) > 80) {
+            throw new InvalidArgumentException("El nombre no puede superar los 80 caracteres.");
         }
         $this->nombre = $nombre;
     }

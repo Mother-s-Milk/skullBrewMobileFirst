@@ -3,7 +3,6 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
-use app\core\util\Casteo;
 
 use InvalidArgumentException;
 
@@ -16,7 +15,7 @@ final class RolDTO implements InterfaceDTO
 
     public function __construct(array $data = [])
     {
-        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
+        $this->setId($data["id"] ?? null);
         $this->setNombre($data["nombre"] ?? "");
         $this->setDescripcion($data["descripcion"] ?? null);
     }

@@ -18,6 +18,9 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
 
     public function save(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+        $this->validate($data);
+
         $sql = "
                 INSERT INTO
                     {$this->table}
@@ -27,7 +30,6 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
             ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
         try {
             $stmt->execute([
@@ -35,7 +37,10 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
                 "descripcion" => $data["descripcion"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El estilo '{$data["nombre"]}' ya existe.");
+            }
+            throw $e;
         }
 
         $object->setId((int) $this->conn->lastInsertId());
@@ -43,6 +48,10 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
 
     public function load(int $id): InterfaceDTO
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
         $sql = "
             SELECT
                 ec.id,
@@ -68,6 +77,14 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
 
     public function update(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        if ($data["id"] === null) {
+            throw new \InvalidArgumentException("No se puede actualizar un estilo sin ID.");
+        }
+
+        $this->validate($data);
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -79,11 +96,6 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
-
-        if ($data["id"] === null) {
-            throw new \InvalidArgumentException("No se puede actualizar un estilo sin ID.");
-        }
 
         try {
             $stmt->execute([
@@ -92,12 +104,27 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
                 "descripcion" => $data["descripcion"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El estilo '{$data["nombre"]}' ya existe.");
+            }
+            throw $e;
         }
     }
 
     public function delete(int $id): void
     {
+        /* opcional: verificar si el estilo tiene relación con cervezas detalles antes de eliminarlo */
+        $check = $this->conn->prepare(
+            "SELECT COUNT(*) FROM cervezas_detalle WHERE estilo_id = :id"
+        );
+        $check->execute(["id" => $id]);
+        if ((int) $check->fetchColumn() > 0) {
+            throw new \InvalidArgumentException(
+                "El estilo tiene asociados detalles de cervezas. Eliminalos o reasignalos antes de borrarlo."
+            );
+        }
+        /* fin */
+
         $sql = "
             DELETE FROM
                 {$this->table}
@@ -106,11 +133,7 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        try {
-            $stmt->execute(["id" => $id]);
-        } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
-        }
+        $stmt->execute(["id" => $id]);
 
         if ($stmt->rowCount() === 0) {
             throw new \Exception("No se encontró el elemento con ID {$id}.");
@@ -118,7 +141,7 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
     }
 
     /* RETURN ALL ITEMS */
-    public function list(): array
+    public function listAll(): array
     {
         $sql = "
                 SELECT
@@ -130,74 +153,17 @@ final class EstiloCervezaDAO extends DAO implements InterfaceDAO
             ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => new EstiloCervezaDTO($row), $list);
     }
 
-    /* RETURNS LIST WITH FILTERS APPLIED, IF ANY EXIST */
-    public function listPaginated(array $params): array
-    {
-        $currentPage  = max(1, (int) ($params['page'] ?? 1));
-        $itemsPerPage = min(100, max(1, (int) ($params['limit'] ?? 15)));
-        $filters = $params['filters'] ?? [];
-
-        $offset = ($currentPage - 1) * $itemsPerPage;
-
-        $where = [];
-        $queryParams = [];
-
-        $whereClause = '';
-        if (!empty($where)) {
-            $whereClause = 'WHERE ' . implode(' AND ', $where);
-        }
-
-        $countSql = "
-                SELECT
-                    COUNT(*)
-                FROM
-                    {$this->table} AS ec
-                {$whereClause}
-            ";
-        $countStmt = $this->conn->prepare($countSql);
-        $countStmt->execute($queryParams);
-        $totalEstilosCerveza = (int) $countStmt->fetchColumn();
-
-        $sql = "
-                SELECT
-                    ec.id,
-                    ec.nombre,
-                    ec.descripcion
-                FROM
-                    {$this->table} AS ec
-                {$whereClause}
-                ORDER BY
-                    ec.nombre ASC
-                LIMIT :limit OFFSET :offset
-            ";
-
-        $stmt = $this->conn->prepare($sql);
-        foreach ($queryParams as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-        $stmt->bindValue(':limit', $itemsPerPage, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $estilosCerveza = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return [
-            'estilosCerveza' => $estilosCerveza,
-            'totalEstilosCerveza' => $totalEstilosCerveza
-        ];
-    }
-
-    /***********/
     /* PRIVATE */
-    /***********/
-    private function lanzarErrorAmigable(\PDOException $e): never  // never requiere PHP 8.1+ (o cambiar a void)
+    private function validate(array $data): void
     {
-        match ($e->errorInfo[1] ?? null) {
-            1451 => throw new \InvalidArgumentException("No se puede eliminar: la categoría tiene productos asociados. Desactivala en su lugar."),
-            default => throw $e,
-        };
+        if ($data["nombre"] === "") {
+            throw new \InvalidArgumentException("El nombre no puede estar vacío.");
+        }
     }
 }

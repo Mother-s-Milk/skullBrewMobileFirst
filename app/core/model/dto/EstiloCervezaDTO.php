@@ -3,7 +3,6 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
-use app\core\util\Casteo;
 
 use InvalidArgumentException;
 
@@ -16,7 +15,7 @@ final class EstiloCervezaDTO implements InterfaceDTO
 
     public function __construct(array $data = [])
     {
-        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
+        $this->setId($data["id"] ?? null);
         $this->setNombre($data["nombre"] ?? "");
         $this->setDescripcion($data["descripcion"] ?? null);
     }
@@ -44,7 +43,6 @@ final class EstiloCervezaDTO implements InterfaceDTO
     /***********/
     public function setId(?int $id): void
     {
-        // null = categoría todavía no guardada en la base
         $this->id = ($id !== null && $id > 0) ? $id : null;
     }
 

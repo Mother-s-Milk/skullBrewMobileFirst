@@ -140,6 +140,17 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
                 "La categoría tiene subcategorías. Eliminalas o reasignalas antes de borrarla."
             );
         }
+
+        /* opcional: verificar si la categoría tiene productos antes de eliminarla */
+        $check = $this->conn->prepare(
+            "SELECT COUNT(*) FROM productos WHERE categoria_id = :id"
+        );
+        $check->execute(["id" => $id]);
+        if ((int) $check->fetchColumn() > 0) {
+            throw new \InvalidArgumentException(
+                "La categoría tiene productos asociados. Eliminalos o reasignalos antes de borrarla."
+            );
+        }
         /* fin */
 
         $sql = "

@@ -18,6 +18,10 @@ final class ProductoDAO extends DAO implements InterfaceDAO
 
     public function save(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        $this->validate($data);
+
         $sql = "
                 INSERT INTO
                     {$this->table}
@@ -27,7 +31,6 @@ final class ProductoDAO extends DAO implements InterfaceDAO
             ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
         try {
             $stmt->execute([
@@ -35,14 +38,20 @@ final class ProductoDAO extends DAO implements InterfaceDAO
                 "nombre" => $data["nombre"],
                 "slug" => $data["slug"],
                 "descripcion" => $data["descripcion"],
-                "es_alcoholico" => (int) $data["es_alcoholico"],
-                "destacado" => (int) $data["destacado"],
+                "es_alcoholico" => $data["es_alcoholico"],
+                "destacado" => $data["destacado"],
                 "badge" => $data["badge"],
-                "disponible" => (int) $data["disponible"],
-                "activo" => (int) $data["activo"]
+                "disponible" => $data["disponible"],
+                "activo" => $data["activo"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El slug '{$data["slug"]}' ya existe.");
+            }
+            if (($e->errorInfo[1] ?? null) === 1452) {
+                throw new \InvalidArgumentException("La categoría indicada no existe.");
+            }
+            throw $e;
         }
 
         $object->setId((int) $this->conn->lastInsertId());
@@ -50,6 +59,10 @@ final class ProductoDAO extends DAO implements InterfaceDAO
 
     public function load(int $id): InterfaceDTO
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
         $sql = "
             SELECT
                 p.id,
@@ -60,7 +73,7 @@ final class ProductoDAO extends DAO implements InterfaceDAO
                 p.es_alcoholico,
                 p.destacado,
                 p.badge,
-                p,disponible,
+                p.disponible,
                 p.activo,
                 p.created_at,
                 p.updated_at
@@ -84,6 +97,18 @@ final class ProductoDAO extends DAO implements InterfaceDAO
 
     public function update(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        if ($data["id"] === null) {
+            throw new \InvalidArgumentException("No se puede actualizar un producto sin ID.");
+        }
+
+        if (!$this->exists($data["id"])) {
+            throw new \InvalidArgumentException("La presentación con ID {$data["id"]} no existe.");
+        }
+        
+        $this->validate($data);
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -92,7 +117,7 @@ final class ProductoDAO extends DAO implements InterfaceDAO
                 nombre = :nombre,
                 slug = :slug,
                 descripcion = :descripcion,
-                es_alcoholico = :es_alcoholico,,
+                es_alcoholico = :es_alcoholico,
                 destacado = :destacado,
                 badge = :badge,
                 disponible = :disponible,
@@ -101,11 +126,6 @@ final class ProductoDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
-
-        if ($data["id"] === null) {
-            throw new \InvalidArgumentException("No se puede actualizar un producto sin ID.");
-        }
 
         try {
             $stmt->execute([
@@ -121,7 +141,13 @@ final class ProductoDAO extends DAO implements InterfaceDAO
                 "activo" => (int) $data["activo"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El slug '{$data["slug"]}' ya existe.");
+            }
+            if (($e->errorInfo[1] ?? null) === 1452) {
+                throw new \InvalidArgumentException("La categoría indicada no existe.");
+            }
+            throw $e;
         }
     }
 
@@ -135,11 +161,7 @@ final class ProductoDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        try {
-            $stmt->execute(["id" => $id]);
-        } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
-        }
+        $stmt->execute(["id" => $id]);
 
         if ($stmt->rowCount() === 0) {
             throw new \Exception("No se encontró el elemento con ID {$id}.");
@@ -147,93 +169,53 @@ final class ProductoDAO extends DAO implements InterfaceDAO
     }
 
     /* RETURN ALL ITEMS */
-    public function list(): array
+    public function listAll(): array
     {
         $sql = "
                 SELECT
                     *
                 FROM
                     {$this->table}
-            ";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    /* RETURNS LIST WITH FILTERS APPLIED, IF ANY EXIST */
-    public function listPaginated(array $params): array
-    {
-        $currentPage  = max(1, (int) ($params['page'] ?? 1));
-        $itemsPerPage = min(100, max(1, (int) ($params['limit'] ?? 15)));
-        $filters = $params['filters'] ?? [];
-
-        $offset = ($currentPage - 1) * $itemsPerPage;
-
-        $where = [];
-        $queryParams = [];
-
-        $whereClause = '';
-        if (!empty($where)) {
-            $whereClause = 'WHERE ' . implode(' AND ', $where);
-        }
-
-        $countSql = "
-                SELECT
-                    COUNT(*)
-                FROM
-                    {$this->table} AS p
-                {$whereClause}
-            ";
-        $countStmt = $this->conn->prepare($countSql);
-        $countStmt->execute($queryParams);
-        $totalProductos = (int) $countStmt->fetchColumn();
-
-        $sql = "
-                SELECT
-                    p.id,
-                    p.categoria_id,
-                    p.nombre,
-                    p.slug,
-                    p.descripcion,
-                    p.es_alcoholico,
-                    p.destacado,
-                    p.badge,
-                    p.disponible,
-                    p.activo,
-                    p.created_at,
-                    p.updated_at
-                FROM
-                    {$this->table} AS p
-                {$whereClause}
                 ORDER BY
-                    p.nombre ASC
-                LIMIT :limit OFFSET :offset
+                    nombre ASC
             ";
-
         $stmt = $this->conn->prepare($sql);
-        foreach ($queryParams as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-        $stmt->bindValue(':limit', $itemsPerPage, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
         $stmt->execute();
 
-        $productos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return [
-            'productos' => $productos,
-            'totalProductos' => $totalProductos
-        ];
+        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map(fn($row) => new ProductoDTO($row), $list);
     }
 
-    /***********/
     /* PRIVATE */
-    /***********/
-    private function lanzarErrorAmigable(\PDOException $e): never  // never requiere PHP 8.1+ (o cambiar a void)
+    private function validate(array $data): void
     {
-        match ($e->errorInfo[1] ?? null) {
-            1062 => throw new \InvalidArgumentException("Ya existe un producto con ese slug."),
-            default => throw $e,
-        };
+        if ($data["categoria_id"] === null) {
+            throw new \InvalidArgumentException("Un producto debe tener una categoría.");
+        }
+
+        if ($data["nombre"] === "") {
+            throw new \InvalidArgumentException("El nombre no puede estar vacío.");
+        }
+
+        if ($data["slug"] === "") {
+            throw new \InvalidArgumentException("El slug no puede estar vacío.");
+        }
+    }
+
+    private function exists(int $id): bool
+    {
+        $sql = "
+            SELECT 1 FROM
+                {$this->table}
+            WHERE
+                id = :id
+            LIMIT
+                1
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(["id" => $id]);
+
+        return $stmt->fetchColumn() !== false;
     }
 }

@@ -16,25 +16,25 @@ final class PresentacionDTO implements InterfaceDTO
     private ?int $volumen_ml;
     private float $precio;
     private ?string $sku;
-    private bool $disponible;
+    private int $disponible;
     private int $orden;
     private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 
     public function __construct(array $data = [])
     {
-        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
-        $this->setProductoId(Casteo::entero($data["producto_id"] ?? null, "producto_id"));
+        $this->setId($data["id"] ?? null);
+        $this->setProductoId($data["producto_id"] ?? null);
         $this->setFormato($data["formato"] ?? "");
-        $this->setVolumenMl(Casteo::entero($data["volumen_ml"] ?? null, "volumen_ml"));
-        $this->setPrecio(Casteo::decimal($data["precio"] ?? null, "precio") ?? 0.0);
+        $this->setVolumenMl($data["volumen_ml"] ?? null);
+        $this->setPrecio($data["precio"] ?? 0.0);
         $this->setSku($data["sku"] ?? null);
-        $this->setDisponible(Casteo::booleano($data["disponible"] ?? true, "disponible"));
-        $this->setOrden(Casteo::entero($data["orden"] ?? 0, "orden"));
+        $this->setDisponible($data["disponible"] ?? 1);
+        $this->setOrden($data["orden"] ?? 0);
 
         // Los completa MySQL: solo se cargan cuando el DAO lee de la base
-        $this->created_at = $this->parseFecha($data["created_at"] ?? null);
-        $this->updated_at = $this->parseFecha($data["updated_at"] ?? null);
+        $this->created_at = Casteo::parseFecha($data["created_at"] ?? null);
+        $this->updated_at = Casteo::parseFecha($data["updated_at"] ?? null);
     }
 
     /***********/
@@ -70,7 +70,7 @@ final class PresentacionDTO implements InterfaceDTO
         return $this->sku;
     }
 
-    public function getDisponible(): bool
+    public function getDisponible(): int
     {
         return $this->disponible;
     }
@@ -95,13 +95,11 @@ final class PresentacionDTO implements InterfaceDTO
     /***********/
     public function setId(?int $id): void
     {
-        // null = categoría todavía no guardada en la base
         $this->id = ($id !== null && $id > 0) ? $id : null;
     }
 
     public function setProductoId(?int $producto_id): void
     {
-        // null = todavía no se guardó el producto padre
         $this->producto_id = ($producto_id !== null && $producto_id > 0) ? $producto_id : null;
     }
 
@@ -116,6 +114,9 @@ final class PresentacionDTO implements InterfaceDTO
 
     public function setVolumenMl(?int $volumen_ml): void
     {
+        if ($volumen_ml !== null && $volumen_ml > 4294967295) {
+            throw new InvalidArgumentException("El volumen no puede superar 4294967295 ml.");
+        }
         $this->volumen_ml = ($volumen_ml !== null && $volumen_ml > 0) ? $volumen_ml : null;
     }
 
@@ -136,14 +137,13 @@ final class PresentacionDTO implements InterfaceDTO
         $this->sku = $sku === "" ? null : $sku;
     }
 
-    public function setDisponible(bool $disponible): void
+    public function setDisponible(int $disponible): void
     {
-        $this->disponible = $disponible;
+        $this->disponible = (($disponible === 0) || ($disponible === 1)) ? $disponible : 0;
     }
 
     public function setOrden(int $orden): void
     {
-        // La columna es SMALLINT UNSIGNED: 0 a 65535
         if ($orden < 0 || $orden > 65535) {
             throw new InvalidArgumentException("El orden debe estar entre 0 y 65535.");
         }
@@ -167,16 +167,5 @@ final class PresentacionDTO implements InterfaceDTO
             "created_at" => $this->getCreatedAt()?->format("d-m-Y H:i:s"),
             "updated_at" => $this->getUpdatedAt()?->format("d-m-Y H:i:s")
         ];
-    }
-
-    /***********/
-    /* PRIVATE */
-    /***********/
-    private function parseFecha(mixed $valor): ?DateTimeImmutable
-    {
-        if ($valor === null || $valor === "") {
-            return null;
-        }
-        return $valor instanceof DateTimeImmutable ? $valor : new DateTimeImmutable($valor);
     }
 }

@@ -18,6 +18,9 @@ final class ProductoImagenDAO extends DAO implements InterfaceDAO
 
     public function save(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+        $this->validate($data);
+
         $sql = "
                 INSERT INTO
                     {$this->table}
@@ -27,21 +30,32 @@ final class ProductoImagenDAO extends DAO implements InterfaceDAO
             ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
-        $stmt->execute([
-            "producto_id" => $data["producto_id"],
-            "url" => $data["url"],
-            "alt_text" => $data["alt_text"],
-            "es_principal" => (int) $data["es_principal"],
-            "orden" => $data["orden"]
-        ]);
+        try {
+            $stmt->execute([
+                "producto_id" => $data["producto_id"],
+                "url" => $data["url"],
+                "alt_text" => $data["alt_text"],
+                "es_principal" => (int) $data["es_principal"],
+                "orden" => $data["orden"]
+            ]);
+        } catch (\PDOException $e) {
+            $code = $e->errorInfo[1] ?? null;
+            if ($code === 1452) {
+                throw new \InvalidArgumentException("El producto indicado no existe.");
+            }
+            throw $e;
+        }
 
         $object->setId((int) $this->conn->lastInsertId());
     }
 
     public function load(int $id): InterfaceDTO
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
         $sql = "
             SELECT
                 pi.id,
@@ -70,6 +84,14 @@ final class ProductoImagenDAO extends DAO implements InterfaceDAO
 
     public function update(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        if ($data["id"] === null) {
+            throw new \InvalidArgumentException("No se puede actualizar una imagen sin ID.");
+        }
+
+        $this->validate($data);
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -77,26 +99,30 @@ final class ProductoImagenDAO extends DAO implements InterfaceDAO
                 producto_id = :producto_id,
                 url = :url,
                 alt_text = :alt_text,
-                es_principal = :es_princiapal,
+                es_principal = :es_principal,
                 orden = :orden
             WHERE id = :id
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
-        if ($data["id"] === null) {
-            throw new \InvalidArgumentException("No se puede actualizar una imagen sin ID.");
+        try {
+            $stmt->execute([
+                "id" => $data["id"],
+                "producto_id" => $data["producto_id"],
+                "url" => $data["url"],
+                "alt_text" => $data["alt_text"],
+                "es_principal" => (int) $data["es_principal"],
+                "orden" => $data["orden"]
+            ]);
+        } catch (\PDOException $e) {
+            $code = $e->errorInfo[1] ?? null;
+
+            if ($code === 1452) {
+                throw new \InvalidArgumentException("El producto indicado no existe.");
+            }
+            throw $e;
         }
-
-        $stmt->execute([
-            "id" => $data["id"],
-            "producto_id" => $data["producto_id"],
-            "url" => $data["url"],
-            "alt_text" => $data["alt_text"],
-            "es_principal" => (int) $data["es_principal"],
-            "orden" => $data["orden"]
-        ]);
     }
 
     public function delete(int $id): void
@@ -117,16 +143,32 @@ final class ProductoImagenDAO extends DAO implements InterfaceDAO
     }
 
     /* RETURN ALL ITEMS */
-    public function list(): array
+    public function listAll(): array
     {
         $sql = "
                 SELECT
                     *
                 FROM
                     {$this->table}
+                ORDER BY
+                    producto_id ASC, orden ASC
             ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => new ProductoImagenDTO($row), $list);
+    }
+
+    private function validate(array $data): void
+    {
+        if ($data["producto_id"] === null) {
+            throw new \InvalidArgumentException("La imagen debe estar asignada a un producto.");
+        }
+
+        if ($data["url"] === "") {
+            throw new \InvalidArgumentException("La url no puede estar vacía.");
+        }
     }
 }

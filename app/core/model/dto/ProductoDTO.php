@@ -10,36 +10,35 @@ use InvalidArgumentException;
 
 final class ProductoDTO implements InterfaceDTO
 {
-
     private ?int $id;
     private ?int $categoria_id;
     private string $nombre;
     private string $slug;
     private ?string $descripcion;
-    private bool $es_alcoholico;
-    private bool $destacado;
+    private int $es_alcoholico;
+    private int $destacado;
     private ?string $badge;
-    private bool $disponible;
-    private bool $activo;
+    private int $disponible;
+    private int $activo;
     private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 
     public function __construct(array $data = [])
     {
-        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
-        $this->setCategoriaId(Casteo::entero($data["categoria_id"] ?? null, "categoria_id"));
+        $this->setId($data["id"] ?? null);
+        $this->setCategoriaId($data["categoria_id"] ?? null);
         $this->setNombre($data["nombre"] ?? "");
         $this->setSlug($data["slug"] ?? "");
         $this->setDescripcion($data["descripcion"] ?? null);
-        $this->setEsAlcoholico(Casteo::booleano($data["es_alcoholico"] ?? null, "es_alcoholico") ?? false);
-        $this->setDestacado(Casteo::booleano($data["destacado"] ?? null, "destacado") ?? false);
+        $this->setEsAlcoholico($data["es_alcoholico"] ?? 0);
+        $this->setDestacado($data["destacado"] ?? 0);
         $this->setBadge($data["badge"] ?? null);
-        $this->setDisponible(Casteo::booleano($data["disponible"] ?? null, "disponible") ?? true);
-        $this->setActivo(Casteo::booleano($data["activo"] ?? null, "activo") ?? true);
+        $this->setDisponible($data["disponible"] ?? 1);
+        $this->setActivo($data["activo"] ?? 1);
 
         // Los completa MySQL: solo se cargan cuando el DAO lee de la base
-        $this->created_at = $this->parseFecha($data["created_at"] ?? null);
-        $this->updated_at = $this->parseFecha($data["updated_at"] ?? null);
+        $this->created_at = Casteo::parseFecha($data["created_at"] ?? null);
+        $this->updated_at = Casteo::parseFecha($data["updated_at"] ?? null);
     }
 
     /***********/
@@ -70,12 +69,12 @@ final class ProductoDTO implements InterfaceDTO
         return $this->descripcion;
     }
 
-    public function getEsAlcoholico(): bool
+    public function getEsAlcoholico(): int
     {
         return $this->es_alcoholico;
     }
 
-    public function getDestacado(): bool
+    public function getDestacado(): int
     {
         return $this->destacado;
     }
@@ -85,12 +84,12 @@ final class ProductoDTO implements InterfaceDTO
         return $this->badge;
     }
 
-    public function getDisponible(): bool
+    public function getDisponible(): int
     {
         return $this->disponible;
     }
 
-    public function getActivo(): bool
+    public function getActivo(): int
     {
         return $this->activo;
     }
@@ -110,7 +109,6 @@ final class ProductoDTO implements InterfaceDTO
     /***********/
     public function setId(?int $id): void
     {
-        // null = categoría todavía no guardada en la base
         $this->id = ($id !== null && $id > 0) ? $id : null;
     }
 
@@ -147,14 +145,14 @@ final class ProductoDTO implements InterfaceDTO
         $this->descripcion = $descripcion === "" ? null : $descripcion;
     }
 
-    public function setEsAlcoholico(bool $es_alcoholico): void
+    public function setEsAlcoholico(int $es_alcoholico): void
     {
-        $this->es_alcoholico = $es_alcoholico;
+        $this->es_alcoholico = (($es_alcoholico === 0) || ($es_alcoholico === 1)) ? $es_alcoholico : 0;
     }
 
-    public function setDestacado(bool $destacado): void
+    public function setDestacado(int $destacado): void
     {
-        $this->destacado = $destacado;
+        $this->destacado = (($destacado === 0) || ($destacado === 1)) ? $destacado : 0;
     }
 
     public function setBadge(?string $badge): void
@@ -167,14 +165,14 @@ final class ProductoDTO implements InterfaceDTO
         $this->badge = $badge === "" ? null : $badge;
     }
 
-    public function setDisponible(bool $disponible): void
+    public function setDisponible(int $disponible): void
     {
-        $this->disponible = $disponible;
+        $this->disponible = (($disponible === 0) || ($disponible === 1)) ? $disponible : 0;
     }
 
-    public function setActivo(bool $activo): void
+    public function setActivo(int $activo): void
     {
-        $this->activo = $activo;
+        $this->activo = (($activo === 0) || ($activo === 1)) ? $activo : 0;
     }
 
     /*********************/
@@ -196,16 +194,5 @@ final class ProductoDTO implements InterfaceDTO
             "created_at" => $this->getCreatedAt()?->format("d-m-Y H:i:s"),
             "updated_at" => $this->getUpdatedAt()?->format("d-m-Y H:i:s")
         ];
-    }
-
-    /***********/
-    /* PRIVATE */
-    /***********/
-    private function parseFecha(mixed $valor): ?DateTimeImmutable
-    {
-        if ($valor === null || $valor === "") {
-            return null;
-        }
-        return $valor instanceof DateTimeImmutable ? $valor : new DateTimeImmutable($valor);
     }
 }

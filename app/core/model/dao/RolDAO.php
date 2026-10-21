@@ -18,6 +18,9 @@ final class RolDAO extends DAO implements InterfaceDAO
 
     public function save(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+        $this->validate($data);
+
         $sql = "
                 INSERT INTO
                     {$this->table}
@@ -27,7 +30,6 @@ final class RolDAO extends DAO implements InterfaceDAO
             ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
 
         try {
             $stmt->execute([
@@ -35,7 +37,10 @@ final class RolDAO extends DAO implements InterfaceDAO
                 "descripcion" => $data["descripcion"]
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El rol '{$data["nombre"]}' ya existe.");
+            }
+            throw $e;
         }
 
         $object->setId((int) $this->conn->lastInsertId());
@@ -43,6 +48,10 @@ final class RolDAO extends DAO implements InterfaceDAO
 
     public function load(int $id): InterfaceDTO
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
         $sql = "
             SELECT
                 r.id,
@@ -68,6 +77,14 @@ final class RolDAO extends DAO implements InterfaceDAO
 
     public function update(InterfaceDTO $object): void
     {
+        $data = $object->toArray();
+
+        if ($data["id"] === null) {
+            throw new \InvalidArgumentException("No se puede actualizar un rol sin ID.");
+        }
+
+        $this->validate($data);
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -78,11 +95,6 @@ final class RolDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        $data = $object->toArray();
-
-        if ($data["id"] === null) {
-            throw new \InvalidArgumentException("No se puede actualizar un rol sin ID.");
-        }
 
         try {
             $stmt->execute([
@@ -91,7 +103,10 @@ final class RolDAO extends DAO implements InterfaceDAO
                 "descripcion" => $data["descripcion"],
             ]);
         } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
+            if (($e->errorInfo[1] ?? null) === 1062) {
+                throw new \InvalidArgumentException("El rol '{$data["nombre"]}' ya existe.");
+            }
+            throw $e;
         }
     }
 
@@ -117,11 +132,7 @@ final class RolDAO extends DAO implements InterfaceDAO
         ";
 
         $stmt = $this->conn->prepare($sql);
-        try {
-            $stmt->execute(["id" => $id]);
-        } catch (\PDOException $e) {
-            $this->lanzarErrorAmigable($e);
-        }
+        $stmt->execute(["id" => $id]);
 
         if ($stmt->rowCount() === 0) {
             throw new \Exception("No se encontró el elemento con ID {$id}.");
@@ -129,27 +140,28 @@ final class RolDAO extends DAO implements InterfaceDAO
     }
 
     /* RETURN ALL ITEMS */
-    public function list(): array
+    public function listAll(): array
     {
         $sql = "
                 SELECT
                     *
                 FROM
                     {$this->table}
+                ORDER BY
+                    nombre ASC
             ";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map(fn($row) => new RolDTO($row), $list);
     }
 
-    /***********/
     /* PRIVATE */
-    /***********/
-    private function lanzarErrorAmigable(\PDOException $e): never  // never requiere PHP 8.1+ (o cambiar a void)
+    private function validate(array $data): void
     {
-        match ($e->errorInfo[1] ?? null) {
-            1451 => throw new \InvalidArgumentException("No se puede eliminar: el rol tiene productos usuarios."),
-            default => throw $e,
-        };
+        if ($data["nombre"] === "") {
+            throw new \InvalidArgumentException("El nombre no puede estar vacío.");
+        }
     }
 }

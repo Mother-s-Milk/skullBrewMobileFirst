@@ -10,30 +10,29 @@ use InvalidArgumentException;
 
 final class UsuarioDTO implements InterfaceDTO
 {
-
     private ?int $id;
     private ?int $rol_id;
     private string $nombre;
     private string $email;
     private ?string $password_hash;
-    private bool $activo;
+    private int $activo;
     private ?DateTimeImmutable $ultimo_acceso;
     private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 
     public function __construct(array $data = [])
     {
-        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
-        $this->setRolId(Casteo::entero($data["rol_id"] ?? null, "rol_id"));
+        $this->setId($data["id"] ?? null);
+        $this->setRolId($data["rol_id"] ?? null);
         $this->setNombre($data["nombre"] ?? "");
         $this->setEmail($data["email"] ?? "");
         $this->setPasswordHash($data["password_hash"] ?? null);
-        $this->setActivo(Casteo::booleano($data["activo"] ?? null, "activo") ?? true);
+        $this->setActivo($data["activo"] ?? 1);
 
         // Los completa MySQL: solo se cargan cuando el DAO lee de la base
-        $this->ultimo_acceso = $this->parseFecha($data["ultimo_acceso"] ?? null);
-        $this->created_at = $this->parseFecha($data["created_at"] ?? null);
-        $this->updated_at = $this->parseFecha($data["updated_at"] ?? null);
+        $this->ultimo_acceso = Casteo::parseFecha($data["ultimo_acceso"] ?? null);
+        $this->created_at = Casteo::parseFecha($data["created_at"] ?? null);
+        $this->updated_at = Casteo::parseFecha($data["updated_at"] ?? null);
     }
 
     /***********/
@@ -64,7 +63,7 @@ final class UsuarioDTO implements InterfaceDTO
         return $this->password_hash;
     }
 
-    public function getActivo(): bool
+    public function getActivo(): int
     {
         return $this->activo;
     }
@@ -89,7 +88,7 @@ final class UsuarioDTO implements InterfaceDTO
     /***********/
     public function setId(?int $id): void
     {
-        // null = usuario todavía no guardada en la base
+        // null = usuario todavía no guardado en la base
         $this->id = ($id !== null && $id > 0) ? $id : null;
     }
 
@@ -109,7 +108,7 @@ final class UsuarioDTO implements InterfaceDTO
 
     public function setEmail(string $email): void
     {
-        $email = trim($email);
+        $email = mb_strtolower(trim($email));
         if (mb_strlen($email) > 150) {
             throw new InvalidArgumentException("El email no puede superar los 150 caracteres.");
         }
@@ -118,15 +117,18 @@ final class UsuarioDTO implements InterfaceDTO
 
     public function setPasswordHash(?string $password_hash): void
     {
-        $password_hash = $password_hash === null ? "" : trim($password_hash);
+        $password_hash = $password_hash === null ? "" : $password_hash;
         if (mb_strlen($password_hash) > 255) {
             throw new InvalidArgumentException("La contraseña no puede superar los 255 caracteres.");
         }
         $this->password_hash = $password_hash === "" ? null : $password_hash;
     }
 
-    public function setActivo(bool $activo): void
+    public function setActivo(int $activo): void
     {
+        if ($activo !== 0 && $activo !== 1) {
+            throw new InvalidArgumentException("El valor de activo debe ser 0 o 1.");
+        }
         $this->activo = $activo;
     }
 
@@ -140,21 +142,11 @@ final class UsuarioDTO implements InterfaceDTO
             "rol_id" => $this->getRolId(),
             "nombre" => $this->getNombre(),
             "email" => $this->getEmail(),
+            "password_hash" => $this->getPasswordHash(),
             "activo" => $this->getActivo(),
             "ultimo_acceso" => $this->getUltimoAcceso()?->format("d-m-Y H:i:s"),
             "created_at" => $this->getCreatedAt()?->format("d-m-Y H:i:s"),
             "updated_at" => $this->getUpdatedAt()?->format("d-m-Y H:i:s")
         ];
-    }
-
-    /***********/
-    /* PRIVATE */
-    /***********/
-    private function parseFecha(mixed $valor): ?DateTimeImmutable
-    {
-        if ($valor === null || $valor === "") {
-            return null;
-        }
-        return $valor instanceof DateTimeImmutable ? $valor : new DateTimeImmutable($valor);
     }
 }

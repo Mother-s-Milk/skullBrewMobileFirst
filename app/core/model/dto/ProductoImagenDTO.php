@@ -3,7 +3,6 @@
 namespace app\core\model\dto;
 
 use app\core\model\base\InterfaceDTO;
-use app\core\util\Casteo;
 
 use InvalidArgumentException;
 
@@ -14,17 +13,17 @@ final class ProductoImagenDTO implements InterfaceDTO
     private ?int $producto_id;
     private string $url;
     private ?string $alt_text;
-    private bool $es_principal;
-    private ?int $orden;
+    private int $es_principal;
+    private int $orden;
 
     public function __construct(array $data = [])
     {
-        $this->setId(Casteo::entero($data["id"] ?? null, "id"));
-        $this->setProductoId(Casteo::entero($data["producto_id"] ?? null, "producto_id"));
+        $this->setId($data["id"] ?? null);
+        $this->setProductoId($data["producto_id"] ?? null);
         $this->setUrl($data["url"] ?? "");
         $this->setAltText($data["alt_text"] ?? null);
-        $this->setEsPrincipal(Casteo::booleano($data["es_principal"] ?? null, "es_principal") ?? false);
-        $this->setOrden(Casteo::entero($data["orden"] ?? null, "orden") ?? 0);
+        $this->setEsPrincipal($data["es_principal"] ?? 0);
+        $this->setOrden($data["orden"] ?? 0);
     }
 
     /***********/
@@ -50,7 +49,7 @@ final class ProductoImagenDTO implements InterfaceDTO
         return $this->alt_text;
     }
 
-    public function getEsPrincipal(): bool
+    public function getEsPrincipal(): int
     {
         return $this->es_principal;
     }
@@ -91,9 +90,9 @@ final class ProductoImagenDTO implements InterfaceDTO
         $this->alt_text = $alt_text === "" ? null : $alt_text;
     }
 
-    public function setEsPrincipal(bool $es_principal): void
+    public function setEsPrincipal(int $es_principal): void
     {
-        $this->es_principal = $es_principal;
+        $this->es_principal = (($es_principal === 0) || ($es_principal === 1)) ? $es_principal : 0;
     }
 
     public function setOrden(int $orden): void

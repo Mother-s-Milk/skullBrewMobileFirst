@@ -10,7 +10,6 @@ use app\core\model\dto\EstiloCervezaDTO;
 
 final class EstiloCervezaDAO extends DAO implements InterfaceDAO
 {
-
     public function __construct(\PDO $conn)
     {
         parent::__construct($conn, 'estilos_cerveza');

@@ -10,7 +10,6 @@ use app\core\model\dto\CategoriaDTO;
 
 final class CategoriaDAO extends DAO implements InterfaceDAO
 {
-
     public function __construct(\PDO $conn)
     {
         parent::__construct($conn, 'categorias');
@@ -42,9 +41,15 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
                 "activa" => $data["activa"]
             ]);
         } catch (\PDOException $e) {
-            if (($e->errorInfo[1] ?? null) === 1062) {
+            $code = $e->errorInfo[1] ?? null;
+
+            if ($code === 1062) {
                 throw new \InvalidArgumentException("El slug '{$data["slug"]}' ya existe.");
             }
+            if ($code === 1452) {
+                throw new \InvalidArgumentException("La categoría padre no existe.");
+            }
+
             throw $e;
         }
 
@@ -96,6 +101,11 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
 
         $this->validate($data);
 
+        if (!$this->exists($data["id"])) {
+            throw new \InvalidArgumentException("La categoría con ID {$data["id"]} no existe.");
+        }
+
+
         $sql = "
             UPDATE
                 {$this->table}
@@ -121,37 +131,40 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
                 "activa" => $data["activa"]
             ]);
         } catch (\PDOException $e) {
-            if (($e->errorInfo[1] ?? null) === 1062) {
+            $code = $e->errorInfo[1] ?? null;
+
+            if ($code === 1062) {
                 throw new \InvalidArgumentException("El slug '{$data["slug"]}' ya existe.");
             }
+            if ($code === 1452) {
+                throw new \InvalidArgumentException("La categoría padre no existe.");
+            }
+
             throw $e;
         }
     }
 
     public function delete(int $id): void
     {
-        /* opcional: verificar si la categoría tiene subcategorías antes de eliminarla */
-        $check = $this->conn->prepare(
-            "SELECT COUNT(*) FROM {$this->table} WHERE parent_id = :id"
-        );
-        $check->execute(["id" => $id]);
-        if ((int) $check->fetchColumn() > 0) {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID inválido.");
+        }
+
+        // La FK de parent_id es SET NULL: sin este chequeo, las subcategorías quedarían como principales.
+        $hijos = $this->countSubcategorias($id);
+        if ($hijos > 0) {
             throw new \InvalidArgumentException(
-                "La categoría tiene subcategorías. Eliminalas o reasignalas antes de borrarla."
+                "La categoría tiene {$hijos} subcategoría(s). Eliminalas o movelas antes de borrarla."
             );
         }
 
-        /* opcional: verificar si la categoría tiene productos antes de eliminarla */
-        $check = $this->conn->prepare(
-            "SELECT COUNT(*) FROM productos WHERE categoria_id = :id"
-        );
-        $check->execute(["id" => $id]);
-        if ((int) $check->fetchColumn() > 0) {
+        $productos = $this->countProductos($id);
+        if ($productos > 0) {
             throw new \InvalidArgumentException(
-                "La categoría tiene productos asociados. Eliminalos o reasignalos antes de borrarla."
+                "La categoría tiene {$productos} producto(s). Pasalos a otra categoría antes de borrarla."
             );
         }
-        /* fin */
+
 
         $sql = "
             DELETE FROM
@@ -159,9 +172,18 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
             WHERE
                 id = :id
         ";
-
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(["id" => $id]);
+
+        try {
+            $stmt->execute(["id" => $id]);
+        } catch (\PDOException $e) {
+            // Respaldo ante una carrera: alguien cargó un producto después del conteo.
+            if (($e->errorInfo[1] ?? null) === 1451) {
+                throw new \InvalidArgumentException("La categoría tiene productos asociados.");
+            }
+            throw $e;
+        }
+
 
         if ($stmt->rowCount() === 0) {
             throw new \Exception("No se encontró el elemento con ID {$id}.");
@@ -171,20 +193,45 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
     /* RETURN ALL ITEMS */
     public function listAll(): array
     {
-        $sql = "
-                SELECT
-                    *
-                FROM
-                    {$this->table}
-                ORDER BY
-                    orden ASC, nombre ASC
-            ";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
+        return $this->fetchList();
+    }
 
-        $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    /* RETURN ACTIVE ITEMS (selects y catálogo) */
+    public function listActive(): array
+    {
+        return $this->fetchList("WHERE activa = 1");
+    }
 
-        return array_map(fn($row) => new CategoriaDTO($row), $list);
+    public function existsSlug(string $slug, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT 1 FROM {$this->table} WHERE slug = :slug";
+        $params = ["slug" => $slug];
+
+        if ($excludeId !== null) {
+            $sql .= " AND id <> :id";
+            $params["id"] = $excludeId;
+        }
+
+        $stmt = $this->conn->prepare($sql . " LIMIT 1");
+        $stmt->execute($params);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    public function countSubcategorias(int $id): int
+    {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM {$this->table} WHERE parent_id = :id");
+        $stmt->execute(["id" => $id]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function countProductos(int $id): int
+    {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM productos WHERE categoria_id = :id");
+        $stmt->execute(["id" => $id]);
+
+        return (int) $stmt->fetchColumn();
     }
 
     /* PRIVATE */
@@ -198,8 +245,36 @@ final class CategoriaDAO extends DAO implements InterfaceDAO
             throw new \InvalidArgumentException("El nombre no puede estar vacío.");
         }
 
-        if ($data["slug"] === "") {
-            throw new \InvalidArgumentException("El slug no puede estar vacío.");
+        // También rechaza el slug vacío
+        if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $data["slug"])) {
+            throw new \InvalidArgumentException("El slug solo puede contener minúsculas, números y guiones.");
         }
+    }
+
+    private function exists(int $id): bool
+    {
+        $stmt = $this->conn->prepare("SELECT 1 FROM {$this->table} WHERE id = :id LIMIT 1");
+        $stmt->execute(["id" => $id]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /* $where es siempre texto fijo del propio DAO, nunca input externo. */
+    private function fetchList(string $where = ""): array
+    {
+        $sql = "
+            SELECT
+                id, parent_id, nombre, slug, descripcion, orden, activa, created_at, updated_at
+            FROM
+                {$this->table}
+            {$where}
+            ORDER BY
+                orden ASC, nombre ASC
+        ";
+
+        $stmt = $this->conn->query($sql);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map(fn($row) => new CategoriaDTO($row), $rows);
     }
 }
